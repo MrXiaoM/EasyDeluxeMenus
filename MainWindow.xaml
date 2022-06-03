@@ -1,0 +1,317 @@
+﻿<Window x:Class="EasyDeluxeMenus.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:EasyDeluxeMenus"
+        mc:Ignorable="d"
+        Title="EasyDeluxeMenus 树形菜单编辑器" Height="595" Width="800" Loaded="Window_Loaded" Closing="Window_Closing" WindowStartupLocation="CenterScreen">
+    <Window.Resources>
+        <Style x:Key="SettingsKey">
+            <Setter Property="Control.VerticalAlignment" Value="Center"/>
+            <Setter Property="Grid.Column" Value="0"/>
+        </Style>
+        <Style x:Key="SettingsValue">
+            <Setter Property="Control.Margin" Value="2"/>
+            <Setter Property="Control.VerticalAlignment" Value="Center"/>
+            <Setter Property="Grid.Column" Value="1"/>
+        </Style>
+    </Window.Resources>
+    <Grid>
+        <Menu Background="#EDEDED" VerticalAlignment="Top" Height="18">
+            <MenuItem Header="文件">
+                <MenuItem Header="新建" Click="NewFile"/>
+                <MenuItem Header="打开" Click="OpenFile"/>
+                <MenuItem Header="最近文件…"/>
+                <Separator/>
+                <MenuItem Header="保存" Click="SaveFile"/>
+                <MenuItem Header="另存为" Click="SaveFileAs"/>
+                <Separator/>
+                <MenuItem Header="设置" Click="OpenSettings"/>
+                <Separator/>
+                <MenuItem Header="退出" Click="ExitApp"/>
+            </MenuItem>
+            <MenuItem Header="编辑">
+                <MenuItem Header="暂无"/>
+            </MenuItem>
+            <MenuItem Header="关于">
+                <MenuItem Header="Github"/>
+                <MenuItem Header="关于软件"/>
+            </MenuItem>
+        </Menu>
+        <Grid Margin="0,18,0,0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" MinWidth="150"/>
+                <ColumnDefinition Width="5"/>
+                <ColumnDefinition Width="3*" MinWidth="352"/>
+            </Grid.ColumnDefinitions>
+            <Grid x:Name="GridLeft">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                <Grid Grid.Row="0" Margin="4">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="2*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Text="物品列表" VerticalAlignment="Center" Grid.Column="0"/>
+                    <Button Content="新建" Grid.Column="1"/>
+                </Grid>
+                <ScrollViewer Grid.Row="1" Margin="4">
+                    <Grid></Grid>
+                </ScrollViewer>
+            </Grid>
+            <GridSplitter Grid.Column="1" Width="5" HorizontalAlignment="Stretch"/>
+            <Grid x:Name="GridRight" Grid.Column="2">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="5"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+
+                <TabControl x:Name="GridUpper" Grid.Row="0" DockPanel.Dock="Top">
+                    <TabItem Header="预览/设计">
+                        <Grid x:Name="GridPreview" DockPanel.Dock="Top" Width="352"></Grid>
+                    </TabItem>
+                    <TabItem Header="源文件">
+                        <TextBox x:Name="TextBoxMenuSource" IsReadOnly="True"/>
+                    </TabItem>
+                </TabControl>
+                <GridSplitter Grid.Row="1" Height="5" HorizontalAlignment="Stretch"/>
+                <TabControl x:Name="GridSettings" Grid.Row="2">
+                    <TabItem Header="菜单设置">
+                        <ScrollViewer HorizontalScrollBarVisibility="Hidden">
+                            <Grid Margin="5,0,5,0">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="100"/>
+                                    <ColumnDefinition/>
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+                                <TextBlock Text="菜单名" Grid.Row="0" Style="{StaticResource SettingsKey}"/>
+                                <TextBox x:Name="MenuTitle" Text="新建菜单" Grid.Row="0" Style="{StaticResource SettingsValue}"/>
+                                <TextBlock Text="菜单类型" Grid.Row="1" Style="{StaticResource SettingsKey}"/>
+                                <ComboBox x:Name="MenuType" Grid.Row="1" SelectedIndex="1" Style="{StaticResource SettingsValue}">
+                                    <ComboBoxItem Content="无" Tag=""/>
+                                    <ComboBoxItem Content="箱子 (CHEST)" Tag="CHEST"/>
+                                </ComboBox>
+                                <TextBlock Text="菜单大小" Grid.Row="2" Style="{StaticResource SettingsKey}"/>
+                                <ComboBox x:Name="MenuSize" Grid.Row="2" SelectedIndex="6" Style="{StaticResource SettingsValue}">
+                                    <ComboBoxItem Content="无" Tag="0"/>
+                                    <ComboBoxItem Content="1行 (9格)" Tag="9"/>
+                                    <ComboBoxItem Content="2行 (18格)" Tag="18"/>
+                                    <ComboBoxItem Content="3行 (27格)" Tag="27"/>
+                                    <ComboBoxItem Content="4行 (36格)" Tag="36"/>
+                                    <ComboBoxItem Content="5行 (45格)" Tag="45"/>
+                                    <ComboBoxItem Content="6行 (54格)" Tag="54"/>
+                                </ComboBox>
+
+                                <TextBlock Text="刷新周期" Grid.Row="3" Style="{StaticResource SettingsKey}"/>
+                                <Grid Grid.Row="3" Style="{StaticResource SettingsValue}">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto" MinWidth="30"/>
+                                        <ColumnDefinition />
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock x:Name="UpdateIntervalText" Text="无" Style="{StaticResource SettingsKey}"/>
+                                    <Slider x:Name="UpdateInterval" ValueChanged="UpdateInterval_ValueChanged" Value="0" Minimum="0" Maximum="60" Style="{StaticResource SettingsValue}"/>
+                                </Grid>
+
+                                <CheckBox x:Name="IsRegisterCommand" Content="注册命令" Grid.Row="4" Checked="IsRegisterCommand_Checked" Unchecked="IsRegisterCommand_UnChecked" Style="{StaticResource SettingsKey}"/>
+                                <TextBox x:Name="OpenCommand" Grid.Row="4" IsEnabled="False" AcceptsReturn="True" Style="{StaticResource SettingsValue}"/>
+
+                                <TextBlock Text="命令参数列表" Grid.Row="5" Style="{StaticResource SettingsKey}"/>
+                                <TextBox Name="Args" Grid.Row="5" IsEnabled="False" AcceptsReturn="True" Style="{StaticResource SettingsValue}"/>
+
+                                <TextBlock Text="命令用法提示" Grid.Row="6" Style="{StaticResource SettingsKey}"/>
+                                <TextBox Name="ArgsUsage" Grid.Row="6" IsEnabled="False" AcceptsReturn="True" Style="{StaticResource SettingsValue}"/>
+
+                                <TextBlock Text="打开/关闭菜单时" Grid.Row="7" Style="{StaticResource SettingsKey}"/>
+                                <Grid Grid.Row="7" Style="{StaticResource SettingsValue}">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition/>
+                                        <ColumnDefinition/>
+                                    </Grid.ColumnDefinitions>
+                                    <Button Content="编辑打开菜单条件/打开后执行的命令" Grid.Column="0" Margin="0,0,2,0"/>
+                                    <Button Content="编辑关闭后执行的命令" Grid.Column="1" Margin="2,0,0,0"/>
+                                </Grid>
+                            </Grid>
+                        </ScrollViewer>
+                    </TabItem>
+                    <TabItem Header="选中的物品设置">
+                        <ScrollViewer>
+                        <Grid Margin="5,0,5,0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="100"/>
+                                <ColumnDefinition/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+                            <TextBlock Text="物品标识符" Grid.Row="0" Style="{StaticResource SettingsKey}"/>
+                            <TextBox x:Name="ItemId" Grid.Row="0" Style="{StaticResource SettingsValue}"/>
+                            <TextBlock Text="物品材质" Grid.Row="1" Style="{StaticResource SettingsKey}"/>
+                            <Grid Grid.Row="1" Style="{StaticResource SettingsValue}">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="20"/>
+                                        <ColumnDefinition/>
+                                    <ColumnDefinition Width="100"/>
+                                </Grid.ColumnDefinitions>
+                                    <Grid Width="18" Height="18" >
+                                        <Grid.Background>
+                                            <ImageBrush ImageSource="/Resources/slot.png"/>
+                                        </Grid.Background>
+                                        <Image x:Name="ItemMaterialImage" Width="16" Height="16" />
+                                    </Grid>
+                                    <TextBox Name="ItemMaterial" Text="STONE" Grid.Column="1" Margin="0,0,2,0" TextChanged="ItemMaterial_TextChanged"/>
+                                <Button Content="选取图标" Grid.Column="2" Margin="2,0,0,0" Click="OpenMaterialWindow"/>
+                            </Grid>
+                            <TextBlock Text="物品展示名" Grid.Row="2" Style="{StaticResource SettingsKey}"/>
+                            <TextBox x:Name="ItemDisplayName" Grid.Row="2" Style="{StaticResource SettingsValue}"/>
+                            <TextBlock Text="物品描述" Grid.Row="3" Margin="0,2,0,0" VerticalAlignment="Top" Style="{StaticResource SettingsKey}"/>
+                            <TextBox x:Name="ItemLore" Grid.Row="3" Style="{StaticResource SettingsValue}"
+                                     MinLines="4" TextWrapping="Wrap" AcceptsReturn="True"/>
+                            <TextBlock Text="物品所在格" Grid.Row="4" Style="{StaticResource SettingsKey}"/>
+                            <Grid Grid.Row="4" Style="{StaticResource SettingsValue}">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="2*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBox x:Name="ItemSlots" Grid.Column="0"/>
+                                <TextBlock Text="显示优先级" Padding="10,0,5,0" Grid.Column="1" Style="{StaticResource SettingsKey}"></TextBlock>
+                                <TextBox x:Name="ItemPriority" Grid.Column="2"/>
+                            </Grid>
+                                <TextBlock Text="物品附魔" Grid.Row="5" Margin="0,2,0,0" VerticalAlignment="Top" Style="{StaticResource SettingsKey}"/>
+                            <Grid Grid.Row="5" Style="{StaticResource SettingsValue}">
+                                <ListView ItemsSource="{Binding ListViewItemEnchantment}">
+                                    <ListView.View>
+                                        <GridView>
+                                            <GridViewColumn Header="附魔" Width="120">
+                                                <GridViewColumn.CellTemplate>
+                                                    <DataTemplate>
+                                                        <local:ComboEnchantmentBox SelectedIndex="{Binding EnchantmentIndex}" Width="100">
+                                                        </local:ComboEnchantmentBox>
+                                                    </DataTemplate>
+                                                </GridViewColumn.CellTemplate>
+                                            </GridViewColumn>
+                                            <GridViewColumn Header="等级" Width="260">
+                                                <GridViewColumn.CellTemplate>
+                                                    <DataTemplate>
+                                                        <WrapPanel>
+                                                            
+                                                            <Slider Value="{Binding Level}" Minimum="0" Maximum="128" SmallChange="1" TickFrequency="1" Width="200"/>
+                                                            <TextBlock Text="{Binding Level}"/>
+                                                            <TextBlock Text="级"/>
+                                                        </WrapPanel>
+                                                    </DataTemplate>
+                                                </GridViewColumn.CellTemplate>
+                                            </GridViewColumn>
+                                            <GridViewColumn Header="操作" Width="50">
+                                                <GridViewColumn.CellTemplate>
+                                                    <DataTemplate>
+                                                        <Button Content="删除"/>
+                                                    </DataTemplate>
+                                                </GridViewColumn.CellTemplate>
+                                            </GridViewColumn>
+                                        </GridView>
+                                    </ListView.View>
+                                    <ListViewItem>
+                                        <local:ListViewItemEnchantment EnchantmentIndex="0"  Level="0"></local:ListViewItemEnchantment>
+                                    </ListViewItem>
+                                </ListView>
+                            </Grid>
+
+                                <TextBlock Text="物品药水效果" Grid.Row="6" Margin="0,2,0,0" VerticalAlignment="Top" Style="{StaticResource SettingsKey}"/>
+                                <Grid Grid.Row="6" Style="{StaticResource SettingsValue}">
+                                    <ListView ItemsSource="{Binding ListViewItemPotionEffect}">
+                                        <ListView.View>
+                                            <GridView>
+                                                <GridViewColumn Header="药水效果" Width="120">
+                                                    <GridViewColumn.CellTemplate>
+                                                        <DataTemplate>
+                                                            <local:ComboPotionEffectBox SelectedIndex="{Binding EffectIndex}" Width="100">
+                                                            </local:ComboPotionEffectBox>
+                                                        </DataTemplate>
+                                                    </GridViewColumn.CellTemplate>
+                                                </GridViewColumn>
+                                                <GridViewColumn Header="等级" Width="260">
+                                                    <GridViewColumn.CellTemplate>
+                                                        <DataTemplate>
+                                                            <WrapPanel>
+                                                                <Slider Value="{Binding Level}" Minimum="0" Maximum="128" SmallChange="1" TickFrequency="1" Width="200"/>
+                                                                <TextBlock Text="{Binding Level}"/>
+                                                                <TextBlock Text="级"/>
+                                                            </WrapPanel>
+                                                        </DataTemplate>
+                                                    </GridViewColumn.CellTemplate>
+                                                </GridViewColumn>
+                                                <GridViewColumn Header="操作" Width="50">
+                                                    <GridViewColumn.CellTemplate>
+                                                        <DataTemplate>
+                                                            <Button Content="删除"/>
+                                                        </DataTemplate>
+                                                    </GridViewColumn.CellTemplate>
+                                                </GridViewColumn>
+                                            </GridView>
+                                        </ListView.View>
+                                        <ListViewItem>
+                                            <local:ListViewItemPotionEffect EffectIndex="0"  Level="0"></local:ListViewItemPotionEffect>
+                                        </ListViewItem>
+                                    </ListView>
+                                </Grid>
+                                <TextBlock Text="点击事件" Grid.Row="7" Margin="0,2,0,0" VerticalAlignment="Top" Style="{StaticResource SettingsKey}"/>
+                            <StackPanel Grid.Row="7" Style="{StaticResource SettingsValue}">
+                                <Button Content="编辑 点击条件 / 点击执行的命令" Style="{StaticResource SettingsValue}"/>
+                                <Button Content="编辑 左键点击条件 / 左键点击执行的命令" Style="{StaticResource SettingsValue}"/>
+                                <Button Content="编辑 右键点击条件 / 右键点击执行的命令" Style="{StaticResource SettingsValue}"/>
+                                <Button Content="编辑 Shift+左键点击条件 / Shift+左键点击执行的命令" Style="{StaticResource SettingsValue}"/>
+                                <Button Content="编辑 Shift+右键点击条件 / Shift+右键点击执行的命令" Style="{StaticResource SettingsValue}"/>
+                            </StackPanel>
+
+                            <TextBlock Text="物品属性" Grid.Row="8" Margin="0,2,0,0" VerticalAlignment="Top" Style="{StaticResource SettingsKey}"/>
+                                <Grid Grid.Row="8" Style="{StaticResource SettingsValue}">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                    </Grid.RowDefinitions>
+                                    <CheckBox x:Name="ItemUnbreakable" Content="无法破坏" Grid.Row="0" Grid.Column="0"/>
+                                    <CheckBox x:Name="ItemHideUnbreakable" Content="隐藏Lore无法破坏标签显示" Grid.Row="0" Grid.Column="1"/>
+                                    <CheckBox x:Name="ItemHideAttributes" Content="隐藏Lore原版属性显示" Grid.Row="1" Grid.Column="0"/>
+                                    <CheckBox x:Name="ItemHideEffects" Content="隐藏Lore药水效果显示" Grid.Row="1" Grid.Column="1"/>
+                                    <CheckBox x:Name="ItemHideEnchantments" Content="隐藏Lore附魔显示(不隐藏光泽)" Grid.Row="2" Grid.Column="0"/>
+                                </Grid>
+                            </Grid>
+                        </ScrollViewer>
+                    </TabItem>
+                </TabControl>
+            </Grid>
+        </Grid>
+    </Grid>
+</Window>

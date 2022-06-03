@@ -1,0 +1,45 @@
+﻿<Window x:Class="EasyDeluxeMenus.MaterialWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:EasyDeluxeMenus"
+        mc:Ignorable="d"
+        Title="选择物品图标" SizeToContent="WidthAndHeight"
+        Background="Transparent" AllowsTransparency="True" 
+        WindowStyle="None"
+        WindowStartupLocation="CenterScreen" 
+        ResizeMode="CanMinimize" 
+        Loaded="Window_Loaded" 
+        Closing="Window_Closing">
+    <Grid Width="372" Height="264">
+        <Image Source="/Resources/material_bg.png" Stretch="None" MouseDown="Image_MouseDown"/>
+        <Button Margin="342,10,12,236" Content="×" Click="Button_Click" ></Button>
+        <Grid Background="#fff" Margin="13,10,33,236">
+        <TextBox x:Name="SearchBox" TextChanged="SearchBox_TextChanged">
+            <TextBox.Resources>
+                <VisualBrush x:Key="NoneText" TileMode="None" Stretch="None" AlignmentX="Left">
+                    <VisualBrush.Visual>
+                        <TextBlock Text="搜索…" Foreground="#808080"></TextBlock>
+                    </VisualBrush.Visual>
+                </VisualBrush>
+            </TextBox.Resources>
+            <TextBox.Style>
+                <Style TargetType="TextBox">
+                    <Style.Triggers>
+                        <Trigger Property="Text" Value="{x:Null}">
+                            <Setter Property="Background" Value="{StaticResource NoneText}"></Setter>
+                        </Trigger>
+                        <Trigger Property="Text" Value="">
+                            <Setter Property="Background" Value="{StaticResource NoneText}"></Setter>
+                        </Trigger>
+                    </Style.Triggers>
+                </Style>
+            </TextBox.Style>
+            </TextBox>
+        </Grid>
+        <ScrollViewer x:Name="Scr" Margin="14, 34, 12, 14" HorizontalScrollBarVisibility="Hidden" BorderBrush="Transparent">
+            <Grid x:Name="MaterialBox" HorizontalAlignment="Left" Width="324" Background="#8B8B8B"></Grid>
+        </ScrollViewer>
+    </Grid>
+</Window>

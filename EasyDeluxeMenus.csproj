@@ -1,0 +1,60 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <StartupObject>EasyDeluxeMenus.App</StartupObject>
+    <Authors>MrXiaoM</Authors>
+    <Company>MrXiaoM</Company>
+    <Copyright>Copyright ©2022 MrXiaoM. All rights reserved.</Copyright>
+    <PackageProjectUrl>https://github.com/MrXiaoM/EasyDeluxeMenus</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/MrXiaoM/EasyDeluxeMenus</RepositoryUrl>
+    <RepositoryType>Github</RepositoryType>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="bin\**" />
+    <EmbeddedResource Remove="bin\**" />
+    <None Remove="bin\**" />
+    <Page Remove="bin\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="bg.png" />
+    <None Remove="Font\unifont-14.0.03.otf" />
+    <None Remove="slot.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="YamlDotNet" Version="11.2.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="Resources\material_bg.png" />
+    <Resource Include="Font\unifont-14.0.03.otf" />
+    <Resource Include="Resources\slot.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="Properties\Resources.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Update="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="items\**">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+</Project>
