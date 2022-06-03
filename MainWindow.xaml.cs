@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Media;
 
 namespace EasyDeluxeMenus
 {
@@ -94,8 +95,73 @@ namespace EasyDeluxeMenus
     }
     #endregion
 
+    #region 物品列表中的物品
+    public class SimpleItem: Grid
+    {
+        Image image = new Image()
+        {
+            Margin = new Thickness(2),
+            VerticalAlignment = VerticalAlignment.Center,
+            HorizontalAlignment = HorizontalAlignment.Left,
+            Width = 16,
+            Height = 16,
+        };
+        TextBlock text = new TextBlock()
+        {
+            Margin = new Thickness(20, 2, 2, 2),
+            VerticalAlignment = VerticalAlignment.Center,
+            HorizontalAlignment = HorizontalAlignment.Left,
+            Foreground = new SolidColorBrush(Colors.White)
+        };
+        private string material;
+        public SimpleItem()
+        {
+            this.Background = new SolidColorBrush(Color.FromArgb(128, 0, 0, 0));
+            this.Height = 24;
+            this.Children.Add(image);
+            this.Children.Add(text);
+            this.MouseDown += delegate
+            {
+                MainWindow.INSTANCE.ItemSelectedId = Id;
+            };
+        }
+        public MemoryItem MenuItem
+        {
+            get
+            {
+                if (MainWindow.INSTANCE.Menu.Items.ContainsKey(Id))
+                    return MainWindow.INSTANCE.Menu.Items[Id];
+                else return new MemoryItem() { Material = material };
+            }
+            set
+            {
+                if (MainWindow.INSTANCE.Menu.Items.ContainsKey(Id))
+                    MainWindow.INSTANCE.Menu.Items[Id] = value;
+                else MainWindow.INSTANCE.Menu.Items.Add(Id, value);
+            }
+        }
+        public string Id;
+        public string Text
+        {
+            get => text.Text;
+            set => text.Text = value;
+        }
+        public string Material
+        {
+            get => material;
+            set
+            {
+                material = value;
+                image.Source = Materials.GetMaterial(material).Image;
+            }
+        }
+    }
+    #endregion
     public partial class MainWindow : Window
     {
+        private static MainWindow instance;
+        public static MainWindow INSTANCE { get => instance; }
+
         #region 数值绑定到控件
         private void UpdateSourceCode()
         {
@@ -220,9 +286,35 @@ namespace EasyDeluxeMenus
 
         private readonly MaterialWindow materialWindow = new MaterialWindow();
         private readonly HovingBoxWindow tips = new HovingBoxWindow();
+        private string itemSelectedId;
+        public string ItemSelectedId
+        {
+            get => itemSelectedId;
+            set
+            {
+                itemSelectedId = value;
+                LoadItem();
+            }
+        }
+        public MemoryItem ItemSelected
+        {
+            get
+            {
+                if (this.Menu.Items.ContainsKey(ItemSelectedId))
+                    return this.Menu.Items[itemSelectedId];
+                return null;
+            }
+            set
+            {
+                if (this.Menu.Items.ContainsKey(ItemSelectedId))
+                    this.Menu.Items[itemSelectedId] = value;
+                else this.Menu.Items.Add(ItemSelectedId, value);
+            }
+        }
         public MainWindow()
         {
             InitializeComponent();
+            instance = this;
         }
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
@@ -299,11 +391,29 @@ namespace EasyDeluxeMenus
                 }
             }
             else if (command is string) this.OpenCommand.Text = (string)command;
-            for (int i = 0; i < this.Menu.CommandArgs.Count; i++)
-            {
-                this.Args.Text += this.Menu.CommandArgs[i] + (i < this.Menu.CommandArgs.Count - 1 ? "," : "");
+            if (this.Menu.CommandArgs != null) {
+                for (int i = 0; i < this.Menu.CommandArgs.Count; i++)
+                {
+                    this.Args.Text += this.Menu.CommandArgs[i] + (i < this.Menu.CommandArgs.Count - 1 ? "," : "");
+                } 
             }
             this.ArgsUsage.Text = this.Menu.ArgsUsageMessage;
+
+            this.ItemsList.Children.Clear();
+            foreach(string id in this.Menu.Items.Keys){
+                MemoryItem item = this.Menu.Items[id];
+                this.ItemsList.Children.Add(new SimpleItem() { Id = id, Text = item.DisplayName, Material = item.Material });
+            }
+        }
+
+        private void LoadItem()
+        {
+            if (!this.Menu.Items.ContainsKey(ItemSelectedId)) return;
+            MemoryItem item = this.Menu.Items[ItemSelectedId];
+            this.ItemId.Text = ItemSelectedId;
+            this.ItemMaterial.Text = item.Material;
+            this.ItemDisplayName.Text = item.DisplayName;
+            
         }
 
         #region 控件相关杂项
@@ -325,12 +435,11 @@ namespace EasyDeluxeMenus
             materialWindow.Close();
             tips.Close();
         }
-
-        #endregion
-
         private void ItemMaterial_TextChanged(object sender, TextChangedEventArgs e)
         {
-            this.ItemMaterialImage.Source = Minecraft.Materials.GetMaterial(this.ItemMaterial.Text).Image;
+            this.ItemMaterialImage.Source = Materials.GetMaterial(this.ItemMaterial.Text).Image;
         }
+        #endregion
+
     }
 }

@@ -59,7 +59,9 @@
                     <Button Content="新建" Grid.Column="1"/>
                 </Grid>
                 <ScrollViewer Grid.Row="1" Margin="4">
-                    <Grid></Grid>
+                    <StackPanel x:Name="ItemsList">
+                        <local:SimpleItem Material="STONE" Text="测试" />
+                    </StackPanel>
                 </ScrollViewer>
             </Grid>
             <GridSplitter Grid.Column="1" Width="5" HorizontalAlignment="Stretch"/>
