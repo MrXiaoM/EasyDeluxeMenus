@@ -9,6 +9,11 @@ namespace EasyDeluxeMenus.DeluxeMenus
 {
     public class MemoryMenu
     {
+        [YamlIgnore]
+        private static readonly ISerializer SERIALIZER = new SerializerBuilder().Build();
+        private static readonly IDeserializer DESERIALIZER = new DeserializerBuilder()
+                .IgnoreUnmatchedProperties()
+                .Build();
         [YamlMember(Alias = "menu_title", DefaultValuesHandling = DefaultValuesHandling.OmitNull)]
         public string Title;
         [YamlMember(Alias = "register_command", DefaultValuesHandling = DefaultValuesHandling.OmitNull)]
@@ -32,7 +37,7 @@ namespace EasyDeluxeMenus.DeluxeMenus
         [YamlMember(Alias = "update_interval", DefaultValuesHandling = DefaultValuesHandling.OmitNull)]
         public int? UpdateInterval;
         [YamlMember(Alias = "items", DefaultValuesHandling = DefaultValuesHandling.OmitNull)]
-        public Dictionary<string, MemoryItem> Items;
+        public Dictionary<string, MemoryItem> Items = new Dictionary<string, MemoryItem>();
 
         [YamlIgnore]
         public static MemoryMenu Default => new MemoryMenu()
@@ -44,16 +49,12 @@ namespace EasyDeluxeMenus.DeluxeMenus
 
         public static MemoryMenu LoadMenu(string s)
         {
-            var deserializer = new DeserializerBuilder()
-                .IgnoreUnmatchedProperties()
-                .Build();
-            return deserializer.Deserialize<MemoryMenu>(s);
+            return DESERIALIZER.Deserialize<MemoryMenu>(s);
         }
 
         public static string SaveMenu(MemoryMenu menu)
         {
-            var se = new SerializerBuilder().Build();
-            return se.Serialize(menu);
+            return SERIALIZER.Serialize(menu);
         }
         /// <summary>
         /// 生成菜单的YAML配置
@@ -143,31 +144,108 @@ namespace EasyDeluxeMenus.DeluxeMenus
         [YamlMember(Alias = "middle_click_requirement", DefaultValuesHandling = DefaultValuesHandling.OmitNull)]
         public RequirementsContainer MiddleClickRequirement;
 
-        public Image GenSlotItem()
+        [YamlIgnore]
+        public string SlotString
         {
-            return new Image()
+            get
             {
-                Width = 32,
-                Height = 32,
-                Source = Materials.GetMaterial(Material).Image
-            };
+                if (Slots != null && Slots.Count > 0)
+                {
+                    string result = "";
+                    for (int i = 0; i < Slots.Count; i++)
+                    {
+                        result += Slots[i] + (i < Slots.Count - 1 ? "," : "");
+                    }
+                    return result;
+                }
+                else if (Slot.HasValue) return Slot.Value.ToString();
+                return "";
+            }
+            set
+            {
+                if (!value.Contains(','))
+                {
+                    if (int.TryParse(value, out int a))
+                    {
+                        Slot = a;
+                        Slots = null;
+                    }
+                }
+                string[] args = value.Split(',');
+                foreach (string s in args)
+                {
+                    if (int.TryParse(value, out int a))
+                    {
+                        Slots.Add(a.ToString());
+                    }
+                    else if (s.Contains('-'))
+                    {
+                        string[] values = s.Split('-');
+                        if (values.Length == 2 && int.TryParse(values[0], out int start) && int.TryParse(values[1], out int end))
+                        {
+                            Slots.Add(start + "-" + end);
+                        }
+                    }
+                }
+            }
         }
 
-        public TextBlock GenSlotAmount()
+        [YamlIgnore]
+        public string LoreString
         {
-            string textAmount = string.Empty;
-            if (DynamicAmount != string.Empty) textAmount = "#";
-            else if (Amount < 0 || Amount > 1) textAmount = Amount.ToString();
-            else return null;
-            return new TextBlock()
+            get
             {
-                Margin = new Thickness(0),
-                HorizontalAlignment = HorizontalAlignment.Right,
-                VerticalAlignment = VerticalAlignment.Bottom,
-                FontFamily = App.UniFont,
-                Foreground = (Amount < 0 || Amount > 64) ? Brushes.Red : Brushes.White,
-                Text = textAmount
-            };
+                if (Lore == null || Lore.Count < 1) return "";
+                string result = "";
+                for (int i = 0; i < Lore.Count; i++)
+                {
+                    result += Lore[i] + (i < Lore.Count - 1 ? "\n" : "");
+                }
+                return result;
+            }
+            set
+            {
+                Lore = new List<string>();
+                value = value.Replace("\r", "");
+                if (value.Contains('\n')) foreach (string s in value.Split('\n')) Lore.Add(s);
+                else if (value.Length > 0) Lore.Add(value);
+                else Lore = null;
+            }
+        }
+
+        [YamlIgnore]
+        public Image SlotItemImage
+        {
+            get
+            {
+                return new Image()
+                {
+                    Width = 32,
+                    Height = 32,
+                    Source = Materials.GetMaterial(Material).Image
+                };
+            }
+        }
+
+        [YamlIgnore]
+        public TextBlock SlotAmountTextBox
+        {
+            get
+            {
+                string textAmount = string.Empty;
+                if (DynamicAmount != string.Empty) textAmount = "#";
+                else if (Amount < 0 || Amount > 1) textAmount = Amount.ToString();
+                else return null;
+                return new TextBlock()
+                {
+                    Margin = new Thickness(0),
+                    HorizontalAlignment = HorizontalAlignment.Right,
+                    VerticalAlignment = VerticalAlignment.Bottom,
+                    FontFamily = App.UniFont,
+                    Foreground = (Amount < 0 || Amount > 64) ? Brushes.Red : Brushes.White,
+                    Text = textAmount
+                };
+            }
         }
     }
 }

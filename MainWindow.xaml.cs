@@ -98,6 +98,8 @@ namespace EasyDeluxeMenus
     #region 物品列表中的物品
     public class SimpleItem: Grid
     {
+        public static readonly SolidColorBrush COLOR_DEFAULT = new SolidColorBrush(Color.FromArgb(128, 0, 0, 0));
+        public static readonly SolidColorBrush COLOR_SELECTED = new SolidColorBrush(Color.FromArgb(90, 0, 0, 0));
         Image image = new Image()
         {
             Margin = new Thickness(2),
@@ -114,17 +116,24 @@ namespace EasyDeluxeMenus
             Foreground = new SolidColorBrush(Colors.White)
         };
         private string material;
-        public SimpleItem()
+        public SimpleItem(MainWindow mainWindow)
         {
-            this.Background = new SolidColorBrush(Color.FromArgb(128, 0, 0, 0));
+            this.mainWindow = mainWindow;
+            this.Background = COLOR_DEFAULT;
             this.Height = 24;
             this.Children.Add(image);
             this.Children.Add(text);
             this.MouseDown += delegate
             {
-                MainWindow.INSTANCE.ItemSelectedId = Id;
+                mainWindow.ItemSelectedId = Id;
+                foreach (SimpleItem i in mainWindow.ItemsList.Children)
+                {
+                    i.Background = COLOR_DEFAULT;
+                }
+                this.Background = COLOR_SELECTED;
             };
         }
+
         public MemoryItem MenuItem
         {
             get
@@ -141,6 +150,8 @@ namespace EasyDeluxeMenus
             }
         }
         public string Id;
+        private MainWindow mainWindow;
+
         public string Text
         {
             get => text.Text;
@@ -319,6 +330,7 @@ namespace EasyDeluxeMenus
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
+            #region 绑定控件数值与配置文件同步
             GridUpper.SelectionChanged += delegate { UpdateSourceCode(); };
             materialWindow.MaterialClickEvent += delegate (MaterialItem i) { this.ItemMaterial.Text = i.Material.Name; };
             // 菜单
@@ -354,6 +366,20 @@ namespace EasyDeluxeMenus
             });
 
             // TODO: 物品
+            BindTextValue(ItemId, delegate (string s)
+            {
+                if (this.Menu.Items.ContainsKey(s) && s != itemSelectedId)
+                {
+                    MemoryItem item = this.Menu.Items[ItemSelectedId];
+                    this.Menu.Items.Remove(ItemSelectedId);
+                    this.Menu.Items.Add(s, item);
+                    this.RefreshItemsList();
+                }
+            });
+            BindTextValue(ItemDisplayName, delegate (string s) { this.ItemSelected.DisplayName = s; });
+            BindTextValue(ItemSlots, delegate (string s) { this.ItemSelected.SlotString = s; });
+            BindTextValue(ItemLore, delegate (string s) { this.ItemSelected.LoreString = s; });
+            #endregion
         }
 
         private void OpenMaterialWindow(object sender, RoutedEventArgs e)
@@ -399,13 +425,19 @@ namespace EasyDeluxeMenus
             }
             this.ArgsUsage.Text = this.Menu.ArgsUsageMessage;
 
-            this.ItemsList.Children.Clear();
-            foreach(string id in this.Menu.Items.Keys){
-                MemoryItem item = this.Menu.Items[id];
-                this.ItemsList.Children.Add(new SimpleItem() { Id = id, Text = item.DisplayName, Material = item.Material });
-            }
+            this.RefreshItemsList();
         }
 
+        public void RefreshItemsList()
+        {
+            this.ItemsList.Children.Clear();
+            foreach (string id in this.Menu.Items.Keys)
+            {
+                MemoryItem item = this.Menu.Items[id];
+                this.ItemsList.Children.Add(new SimpleItem(this) { Id = id, Text = item.DisplayName, Material = item.Material });
+            }
+        }
+        
         private void LoadItem()
         {
             if (!this.Menu.Items.ContainsKey(ItemSelectedId)) return;
@@ -413,7 +445,15 @@ namespace EasyDeluxeMenus
             this.ItemId.Text = ItemSelectedId;
             this.ItemMaterial.Text = item.Material;
             this.ItemDisplayName.Text = item.DisplayName;
-            
+            this.ItemLore.Text = item.LoreString;
+            this.ItemSlots.Text = item.SlotString;
+            this.ItemPriority.Text = item.Priority.ToString();
+
+            this.ItemHideAttributes.IsChecked = item.HideAttributes;
+            this.ItemHideEffects.IsChecked = item.HideEffects;
+            this.ItemHideEnchantments.IsChecked = item.HideEnchantments;
+            this.ItemHideUnbreakable.IsChecked = item.HideUnbreakable;
+            this.ItemUnbreakable.IsChecked = item.Unbreakable;
         }
 
         #region 控件相关杂项
@@ -441,5 +481,23 @@ namespace EasyDeluxeMenus
         }
         #endregion
 
+        private void Items_Create(object sender, RoutedEventArgs e)
+        {
+            this.Menu.Items.Add(GenNewItemName(), new MemoryItem() { Material = "STONE", DisplayName = "新建物品" });
+            this.RefreshItemsList();
+            this.UpdateSourceCode();
+        }
+        public string GenNewItemName()
+        {
+            string name = this.Menu.Items.Count.ToString();
+            while (this.Menu.Items.ContainsKey(name)) name += "-1";
+            return name;
+        }
+
+        private void Source_Copy(object sender, RoutedEventArgs e)
+        {
+            Clipboard.SetText(TextBoxMenuSource.Text);
+            MessageBox.Show("已复制源代码");
+        }
     }
 }

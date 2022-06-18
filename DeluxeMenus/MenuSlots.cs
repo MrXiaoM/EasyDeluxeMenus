@@ -43,8 +43,8 @@ namespace EasyDeluxeMenus.DeluxeMenus
             MemoryItem menu = DecideItemToDisplay();
             this.Tag = menu;
             if (menu == null) return;
-            this.Children.Add(menu.GenSlotItem());
-            TextBlock amount = menu.GenSlotAmount();
+            this.Children.Add(menu.SlotItemImage);
+            TextBlock amount = menu.SlotAmountTextBox;
             if (amount != null) this.Children.Add(amount);
         }
     }
