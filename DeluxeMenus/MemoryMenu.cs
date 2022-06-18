@@ -1,5 +1,6 @@
 ﻿using EasyDeluxeMenus.Minecraft;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
@@ -38,6 +39,32 @@ namespace EasyDeluxeMenus.DeluxeMenus
         public int? UpdateInterval;
         [YamlMember(Alias = "items", DefaultValuesHandling = DefaultValuesHandling.OmitNull)]
         public Dictionary<string, MemoryItem> Items = new Dictionary<string, MemoryItem>();
+
+        [YamlIgnore]
+        public List<MemoryItem> PreviewItems
+        {
+            get
+            {
+                List<MemoryItem> items = new List<MemoryItem>(Items.Values);
+                items.Sort(new PreviewComparer());
+                return items;
+            }
+        }
+        /// <summary>
+        /// 按优先级排序
+        /// </summary>
+        class PreviewComparer : IComparer<MemoryItem>
+        {
+            public int Compare([AllowNull] MemoryItem x, [AllowNull] MemoryItem y)
+            {
+                if (x == null && x == null) return 0;
+                if (x == null) return -1;
+                if (y == null) return 1;
+                int p0 = x.Priority.GetValueOrDefault(0);
+                int p1 = y.Priority.GetValueOrDefault(0);
+                return p0 == p1 ? 0 : (p0 < p1 ? 1 : -1);
+            }
+        }
 
         [YamlIgnore]
         public static MemoryMenu Default => new MemoryMenu()
@@ -143,6 +170,48 @@ namespace EasyDeluxeMenus.DeluxeMenus
         public RequirementsContainer ShiftRightClickRequirement;
         [YamlMember(Alias = "middle_click_requirement", DefaultValuesHandling = DefaultValuesHandling.OmitNull)]
         public RequirementsContainer MiddleClickRequirement;
+
+        [YamlIgnore]
+        public Material TrueMaterial
+        {
+            get
+            {
+                return Materials.GetMaterial(this.Material);
+            }
+        }
+
+        [YamlIgnore]
+        public HashSet<int> SlotsInt
+        {
+            get
+            {
+                HashSet<int> set = new HashSet<int>();
+
+                if (Slots != null && Slots.Count > 0)
+                {
+                    for (int i = 0; i < Slots.Count; i++)
+                    {
+                        if (int.TryParse(Slots[i], out int a))
+                        {
+                            set.Add(a);
+                        }
+                        else if (Slots[i].Contains('-'))
+                        {
+                            string[] values = Slots[i].Split('-');
+                            if (values.Length == 2 && int.TryParse(values[0], out int start) && int.TryParse(values[1], out int end))
+                            {
+                                for(int j = start; j <= end; j++)
+                                {
+                                    set.Add(j);
+                                }
+                            }
+                        }
+                    }
+                }
+                else if (Slot.HasValue) set.Add(Slot.Value);
+                return set;
+            }
+        }
 
         [YamlIgnore]
         public string SlotString
