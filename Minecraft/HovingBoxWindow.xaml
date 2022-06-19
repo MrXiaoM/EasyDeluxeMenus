@@ -38,7 +38,7 @@
             </Rectangle.Fill>
         </Rectangle>
         <Grid x:Name="MainGrid" Margin="8">
-            <TextBlock x:Name="MainText" Foreground="#FFFFFF" FontFamily="Unifont" FontSize="12"/>
+            <TextBlock x:Name="MainText" Foreground="#FFFFFF" FontFamily="Unifont" FontSize="12" LineHeight="16"/>
         </Grid>
     </Grid>
 </Window>

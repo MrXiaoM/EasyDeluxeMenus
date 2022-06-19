@@ -23,7 +23,7 @@ namespace EasyDeluxeMenus.Minecraft
         public static SolidColorBrush FromMinecraft(char c)
         {
             Color color;
-            switch (Char.ToLower(c))
+            switch (char.ToLower(c))
             {
                 case '0':
                     color = Hex("000000");
@@ -141,7 +141,7 @@ namespace EasyDeluxeMenus.Minecraft
                         // 颜色
                         else
                         {
-                            SolidColorBrush color = FromMinecraft(c);
+                            Brush color = FromMinecraft(c);
                             if (color != null)
                             {
                                 if (cache.Text != string.Empty) tb.Inlines.Add(cache);

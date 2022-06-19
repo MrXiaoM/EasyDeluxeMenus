@@ -176,7 +176,12 @@ namespace EasyDeluxeMenus
         #region 数值绑定到控件
         private void UpdateSourceCode()
         {
-            if (Menu != null) TextBoxMenuSource.Text = Menu.ToString();
+            if (Menu != null)
+            {
+                TextBoxMenuSource.Text = this.Menu.ToString();
+                // TODO 不推荐的强制转换
+                ((Inventory)GridPreview.Children[0]).Update(this.Menu);
+            }
         }
         delegate void CallBindTextValue(string s);
         private void BindTextValue(TextBox tb, CallBindTextValue call)
@@ -297,6 +302,20 @@ namespace EasyDeluxeMenus
 
         private readonly MaterialWindow materialWindow = new MaterialWindow();
         private readonly HovingBoxWindow tips = new HovingBoxWindow();
+        public string Tips
+        {
+            set
+            {
+                tips.UpdateTips(value);
+            }
+        }
+        public List<string> TipsList
+        {
+            set
+            {
+                tips.UpdateTips(value);
+            }
+        }
         private string itemSelectedId;
         public string ItemSelectedId
         {
@@ -376,10 +395,15 @@ namespace EasyDeluxeMenus
                     this.RefreshItemsList();
                 }
             });
+            BindTextValue(ItemMaterial, delegate (string s) { if(Materials.materials.ContainsKey(s)) this.ItemSelected.Material = s; });
             BindTextValue(ItemDisplayName, delegate (string s) { this.ItemSelected.DisplayName = s; });
             BindTextValue(ItemSlots, delegate (string s) { this.ItemSelected.SlotString = s; });
             BindTextValue(ItemLore, delegate (string s) { this.ItemSelected.LoreString = s; });
             #endregion
+
+            Inventory inv = new InventoryChest(this.Menu.InventorySize.GetValueOrDefault(9) / 9);
+            inv.Update(this.Menu);
+            this.GridPreview.Children.Add(inv);
         }
 
         private void OpenMaterialWindow(object sender, RoutedEventArgs e)

@@ -133,7 +133,7 @@ namespace EasyDeluxeMenus.DeluxeMenus
         [YamlMember(Alias = "update", DefaultValuesHandling = DefaultValuesHandling.OmitNull)]
         public bool? Update;
         [YamlMember(Alias = "enchantments", DefaultValuesHandling = DefaultValuesHandling.OmitNull)]
-        public List<string> Enchantents;
+        public List<string> Enchantments;
         [YamlMember(Alias = "hide_enchantments", DefaultValuesHandling = DefaultValuesHandling.OmitNull)]
         public bool? HideEnchantments;
         [YamlMember(Alias = "hide_attributes", DefaultValuesHandling = DefaultValuesHandling.OmitNull)]
@@ -170,6 +170,45 @@ namespace EasyDeluxeMenus.DeluxeMenus
         public RequirementsContainer ShiftRightClickRequirement;
         [YamlMember(Alias = "middle_click_requirement", DefaultValuesHandling = DefaultValuesHandling.OmitNull)]
         public RequirementsContainer MiddleClickRequirement;
+        
+        [YamlIgnore]
+        public List<string> Tooltips
+        {
+            get
+            {
+                List<string> tooltip = new List<string>();
+                tooltip.Add(DisplayName);
+                if (Enchantments != null && !HideEnchantments.GetValueOrDefault(false))
+                {
+                    foreach (string ench in Enchantments)
+                    {
+                        // TODO 汉化附魔
+                        tooltip.Add("&7" + ench);
+                    }
+                }
+                if (PotionEffects != null && !HideEffects.GetValueOrDefault(false))
+                {
+                    foreach (string eff in PotionEffects)
+                    {
+                        // TODO 汉化药水效果
+                        tooltip.Add("&7" + eff);
+                    }
+                }
+                if (Lore != null)
+                {
+                    foreach (string s in Lore)
+                    {
+                        tooltip.Add(s);
+                    }
+                }
+                if (Unbreakable.GetValueOrDefault(false) && !HideUnbreakable.GetValueOrDefault(false))
+                {
+                    tooltip.Add("");
+                    tooltip.Add("&9无法破坏");
+                }
+                return tooltip;
+            }
+        }
 
         [YamlIgnore]
         public Material TrueMaterial
@@ -238,13 +277,17 @@ namespace EasyDeluxeMenus.DeluxeMenus
                     {
                         Slot = a;
                         Slots = null;
+                        return;
                     }
                 }
+                Slot = null;
+                Slots = null;
                 string[] args = value.Split(',');
                 foreach (string s in args)
                 {
-                    if (int.TryParse(value, out int a))
+                    if (int.TryParse(s, out int a))
                     {
+                        if (Slots == null) Slots = new List<string>();
                         Slots.Add(a.ToString());
                     }
                     else if (s.Contains('-'))
@@ -252,6 +295,7 @@ namespace EasyDeluxeMenus.DeluxeMenus
                         string[] values = s.Split('-');
                         if (values.Length == 2 && int.TryParse(values[0], out int start) && int.TryParse(values[1], out int end))
                         {
+                            if (Slots == null) Slots = new List<string>();
                             Slots.Add(start + "-" + end);
                         }
                     }

@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Windows.Controls;
 using System.Windows.Media;
+using System.Windows.Shapes;
 
 namespace EasyDeluxeMenus.Minecraft
 {
@@ -34,6 +35,7 @@ namespace EasyDeluxeMenus.Minecraft
                 y = value;
             }
         }
+        Rectangle cover;
         Image materialImage;
         TextBlock amountTextBox;
         MemoryItem item;
@@ -48,20 +50,29 @@ namespace EasyDeluxeMenus.Minecraft
             {
                 Width = 32,
                 Height = 32,
-                Source = item.TrueMaterial.Image
+                Source = item != null ? item.TrueMaterial.Image : null
             });
             this.Children.Add(this.amountTextBox = new TextBlock()
             {
                 VerticalAlignment = System.Windows.VerticalAlignment.Bottom,
                 HorizontalAlignment = System.Windows.HorizontalAlignment.Right,
                 FontFamily = App.UniFont,
-                Text = item.Amount.HasValue ? item.Amount.ToString() : ""
+                Text = item != null && item.Amount.HasValue ? item.Amount.ToString() : ""
             });
+            this.Children.Add(this.cover = new Rectangle()
+            {
+                Fill = new SolidColorBrush(Color.FromArgb(128, 255, 255, 255)),
+                Width = 34,
+                Height = 34,
+                Opacity = 0
+            });
+            this.MouseEnter += delegate { this.cover.Opacity = 1; if(item == null) MainWindow.INSTANCE.Tips = ""; else MainWindow.INSTANCE.TipsList = item.Tooltips; };
+            this.MouseLeave += delegate { this.cover.Opacity = 0; MainWindow.INSTANCE.Tips = ""; };
         }
     }
     public abstract class Inventory : Grid
     {
-        Dictionary<int, ItemStack> items = new Dictionary<int, ItemStack>();
+        protected Dictionary<int, ItemStack> items = new Dictionary<int, ItemStack>();
         protected Grid itemsGrid;
         protected TextBlock TextTitle;
         public string Title
@@ -76,6 +87,8 @@ namespace EasyDeluxeMenus.Minecraft
 
         }
 
+        public abstract void Update(MemoryMenu menu);
+
         public virtual ItemStack GetItem(int slot)
         {
             if (!items.ContainsKey(slot)) return null;
@@ -85,7 +98,7 @@ namespace EasyDeluxeMenus.Minecraft
         public virtual void SetItem(int slot, ItemStack item)
         {
             if (items.ContainsKey(slot)) items[slot] = item;
-            items.Add(slot, item);
+            else items.Add(slot, item);
         }
         
         public virtual void RefreshItems()
@@ -98,8 +111,10 @@ namespace EasyDeluxeMenus.Minecraft
 
     public class InventoryChest : Inventory
     {
-        public InventoryChest()
+        int row;
+        public InventoryChest(int row)
         {
+            this.row = row;
             this.Width = 352;
             this.Height = 264;
             this.Background = new ImageBrush((ImageSource)new ImageSourceConverter().ConvertFrom(Properties.Resources.chest));
@@ -111,8 +126,25 @@ namespace EasyDeluxeMenus.Minecraft
 
             this.Children.Add(this.itemsGrid = new Grid() 
             {
-                Margin = new System.Windows.Thickness(14, 34, 14, 0) 
+                Margin = new System.Windows.Thickness(14, 34, 14, 0)
             });
+            RefreshItems();
+        }
+
+        public override void Update(MemoryMenu menu)
+        {
+            this.row = menu.InventorySize.GetValueOrDefault(9) / 9;
+            FormatCode.GenTextBlock(this.TextTitle, menu.Title);
+            this.items.Clear();
+            foreach (MemoryItem item in menu.PreviewItems)
+            {
+                foreach (int i in item.SlotsInt)
+                {
+                    Console.WriteLine("更新 " + i + " " + item.DisplayName);
+                    SetItem(i, new ItemStack(item));
+                }
+            }
+            RefreshItems();
         }
 
         public override void SetItem(int slot, ItemStack item)
@@ -122,6 +154,24 @@ namespace EasyDeluxeMenus.Minecraft
             item.X = x;
             item.Y = y;
             base.SetItem(slot, item);
+        }
+
+        public override void RefreshItems()
+        {
+            for (int i = 0; i < row * 9; i++) {
+                if (!items.ContainsKey(i) || items[i] == null)
+                {
+                    SetItem(i, new ItemStack(null));
+                }
+            }
+            foreach (int i in items.Keys)
+            {
+                if (i >= row * 9 || i < 0)
+                {
+                    items.Remove(i);
+                }
+            }
+            base.RefreshItems();
         }
     }
 }

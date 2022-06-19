@@ -45,13 +45,27 @@ namespace EasyDeluxeMenus.Minecraft
 
         public void UpdateTips(string text)
         {
-            UpdateTips(new List<string>(text.Contains("\n") ? text.Split('\n') : new string[] { text }));
+            if (text == null || text.Length == 0)
+            {
+                Opacity = 0;
+            }
+            else
+            {
+                UpdateTips(new List<string>(text.Contains("\n") ? text.Split('\n') : new string[] { text }));
+            }
         }
 
         public void UpdateTips(List<string> texts)
         {
-            FormatCode.GenTextBlock(MainText, texts);
-            this.Opacity = 1;
+            if (texts == null || texts.Count == 0)
+            {
+                Opacity = 0;
+            }
+            else
+            {
+                FormatCode.GenTextBlock(MainText, texts);
+                this.Opacity = 1;
+            }
         }
 
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
