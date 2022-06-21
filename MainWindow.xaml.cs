@@ -3,6 +3,7 @@ using EasyDeluxeMenus.Minecraft;
 using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Windows;
 using System.Windows.Controls;
@@ -27,7 +28,7 @@ namespace EasyDeluxeMenus
             for (int i = 0; i < Enchantments.Count; i++)
             {
                 KeyValuePair<string, string> e = Enchantments[i];
-                this.Items.Add(new ComboBoxItem()
+                Items.Add(new ComboBoxItem()
                 {
                     Content = e.Value + "(" + e.Key + ")",
                     Tag = e.Key
@@ -68,7 +69,7 @@ namespace EasyDeluxeMenus
             for (int i = 0; i < Effects.Count; i++)
             {
                 KeyValuePair<string, string> e = Effects[i];
-                this.Items.Add(new ComboBoxItem()
+                Items.Add(new ComboBoxItem()
                 {
                     Content = e.Value + "(" + e.Key + ")",
                     Tag = e.Key
@@ -96,7 +97,7 @@ namespace EasyDeluxeMenus
     #endregion
 
     #region 物品列表中的物品
-    public class SimpleItem: Grid
+    public class SimpleItem : Grid
     {
         public static readonly SolidColorBrush COLOR_DEFAULT = new SolidColorBrush(Color.FromArgb(128, 0, 0, 0));
         public static readonly SolidColorBrush COLOR_SELECTED = new SolidColorBrush(Color.FromArgb(90, 0, 0, 0));
@@ -119,18 +120,18 @@ namespace EasyDeluxeMenus
         public SimpleItem(MainWindow mainWindow)
         {
             this.mainWindow = mainWindow;
-            this.Background = COLOR_DEFAULT;
-            this.Height = 24;
-            this.Children.Add(image);
-            this.Children.Add(text);
-            this.MouseDown += delegate
+            Background = COLOR_DEFAULT;
+            Height = 24;
+            Children.Add(image);
+            Children.Add(text);
+            MouseDown += delegate
             {
                 mainWindow.ItemSelectedId = Id;
                 foreach (SimpleItem i in mainWindow.ItemsList.Children)
                 {
                     i.Background = COLOR_DEFAULT;
                 }
-                this.Background = COLOR_SELECTED;
+                Background = COLOR_SELECTED;
             };
         }
 
@@ -139,14 +140,24 @@ namespace EasyDeluxeMenus
             get
             {
                 if (MainWindow.INSTANCE.Menu.Items.ContainsKey(Id))
+                {
                     return MainWindow.INSTANCE.Menu.Items[Id];
-                else return new MemoryItem() { Material = material };
+                }
+                else
+                {
+                    return new MemoryItem() { Material = material };
+                }
             }
             set
             {
                 if (MainWindow.INSTANCE.Menu.Items.ContainsKey(Id))
+                {
                     MainWindow.INSTANCE.Menu.Items[Id] = value;
-                else MainWindow.INSTANCE.Menu.Items.Add(Id, value);
+                }
+                else
+                {
+                    MainWindow.INSTANCE.Menu.Items.Add(Id, value);
+                }
             }
         }
         public string Id;
@@ -178,9 +189,9 @@ namespace EasyDeluxeMenus
         {
             if (Menu != null)
             {
-                TextBoxMenuSource.Text = this.Menu.ToString();
+                TextBoxMenuSource.Text = Menu.ToString();
                 // TODO 不推荐的强制转换
-                ((Inventory)GridPreview.Children[0]).Update(this.Menu);
+                ((Inventory)GridPreview.Children[0]).Update(Menu);
             }
         }
         delegate void CallBindTextValue(string s);
@@ -199,7 +210,11 @@ namespace EasyDeluxeMenus
         {
             cb.SelectionChanged += delegate (object s, SelectionChangedEventArgs e)
             {
-                if (cb.SelectedIndex >= 0) call(((ComboBoxItem)cb.Items[cb.SelectedIndex]).Tag);
+                if (cb.SelectedIndex >= 0)
+                {
+                    call(((ComboBoxItem)cb.Items[cb.SelectedIndex]).Tag);
+                }
+
                 UpdateSourceCode();
             };
         }
@@ -224,10 +239,13 @@ namespace EasyDeluxeMenus
                 {
                     SaveFile(sender, e);
                 }
-                if (result == MessageBoxResult.Cancel) return;
+                if (result == MessageBoxResult.Cancel)
+                {
+                    return;
+                }
             }
-            this.Menu = MemoryMenu.Default;
-            this.LoadMenu();
+            Menu = MemoryMenu.Default;
+            LoadMenu();
         }
         private void OpenFile(object sender, RoutedEventArgs e)
         {
@@ -239,7 +257,7 @@ namespace EasyDeluxeMenus
             if (dialog.ShowDialog().GetValueOrDefault(false))
             {
                 Menu = MemoryMenu.LoadMenu(File.ReadAllText(CurrentMenuFile = dialog.FileName));
-                this.LoadMenu();
+                LoadMenu();
             }
         }
         private void SaveFile(object sender, RoutedEventArgs e)
@@ -283,7 +301,7 @@ namespace EasyDeluxeMenus
         }
         private void ExitApp(object sender, RoutedEventArgs e)
         {
-            this.Close();
+            Close();
         }
         #endregion
 
@@ -293,7 +311,10 @@ namespace EasyDeluxeMenus
             {
                 string path = Environment.CurrentDirectory + "\\menus";
                 if (!Directory.Exists(path))
+                {
                     Directory.CreateDirectory(path);
+                }
+
                 return path;
             }
         }
@@ -330,15 +351,33 @@ namespace EasyDeluxeMenus
         {
             get
             {
-                if (this.Menu.Items.ContainsKey(ItemSelectedId))
-                    return this.Menu.Items[itemSelectedId];
+                if (ItemSelectedId == null)
+                {
+                    return null;
+                }
+
+                if (Menu.Items.ContainsKey(ItemSelectedId))
+                {
+                    return Menu.Items[itemSelectedId];
+                }
+
                 return null;
             }
             set
             {
-                if (this.Menu.Items.ContainsKey(ItemSelectedId))
-                    this.Menu.Items[itemSelectedId] = value;
-                else this.Menu.Items.Add(ItemSelectedId, value);
+                if (ItemSelectedId == null)
+                {
+                    return;
+                }
+
+                if (Menu.Items.ContainsKey(ItemSelectedId))
+                {
+                    Menu.Items[itemSelectedId] = value;
+                }
+                else
+                {
+                    Menu.Items.Add(ItemSelectedId, value);
+                }
             }
         }
         public MainWindow()
@@ -349,146 +388,196 @@ namespace EasyDeluxeMenus
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
+
+            FormatCode.GenTextBlock(TextPreviewTipsLeft,
+                new List<string>(new string[] {
+                    "&7EasyDeluxeMenus 菜单预览",
+                    "&7仅供参考，不代表最终效果"
+                }));
+            FormatCode.GenTextBlock(TextPreviewTipsRight,
+                new List<string>(new string[] {
+                    "&7添加选中物品 &2鼠标左键",
+                    "&7移除物品 &2鼠标右键"
+                }));
             #region 绑定控件数值与配置文件同步
-            GridUpper.SelectionChanged += delegate { UpdateSourceCode(); };
-            materialWindow.MaterialClickEvent += delegate (MaterialItem i) { this.ItemMaterial.Text = i.Material.Name; };
+            TabUpper.SelectionChanged += delegate { UpdateSourceCode(); };
+            materialWindow.MaterialClickEvent += delegate (MaterialItem i) { ItemMaterial.Text = i.Material.Name; };
             // 菜单
-            BindTextValue(MenuTitle, delegate (string s) { this.Menu.Title = s; });
-            BindComboValue(MenuType, delegate (object value) { string s = value.ToString(); this.Menu.InventoryType = s == string.Empty ? null : s; });
-            BindComboValue(MenuSize, delegate (object value) { if (int.TryParse(value.ToString(), out int a)) { this.Menu.InventorySize = a > 0 ? a : (int?)null; } });
-            BindSliderValue(UpdateInterval, delegate (int value) { this.Menu.UpdateInterval = value > 0 ? value : (int?)null; });
-            BindCheckValue(IsRegisterCommand, delegate (bool isChecked) { this.Menu.IsRegisterOpenCommand = isChecked ? true : (bool?)null; });
+            BindTextValue(MenuTitle, delegate (string s) { Menu.Title = s; });
+            BindComboValue(MenuType, delegate (object value) { string s = value.ToString(); Menu.InventoryType = s == string.Empty ? null : s; });
+            BindComboValue(MenuSize, delegate (object value) { if (int.TryParse(value.ToString(), out int a)) { Menu.InventorySize = a > 0 ? a : (int?)null; } });
+            BindSliderValue(UpdateInterval, delegate (int value) { Menu.UpdateInterval = value > 0 ? value : (int?)null; });
+            BindCheckValue(IsRegisterCommand, delegate (bool isChecked)
+            {
+                Menu.IsRegisterOpenCommand = isChecked ? true : (bool?)null;
+                OpenCommand.IsEnabled = Args.IsEnabled = ArgsUsage.IsEnabled = isChecked;
+            });
             BindTextValue(Args, delegate (string s)
             {
-                if (s == string.Empty) this.Menu.CommandArgs = null;
+                if (s == string.Empty)
+                {
+                    Menu.CommandArgs = null;
+                }
                 else
                 {
-                    this.Menu.CommandArgs = new List<string>();
-                    if (s.Contains(",")) { foreach (string a in s.Split(',')) this.Menu.CommandArgs.Add(a); }
-                    else this.Menu.CommandArgs.Add(s);
+                    Menu.CommandArgs = new List<string>();
+                    if (s.Contains(","))
+                    {
+                        foreach (string a in s.Split(','))
+                        {
+                            Menu.CommandArgs.Add(a);
+                        }
+                    }
+                    else
+                    {
+                        Menu.CommandArgs.Add(s);
+                    }
                 }
             });
-            BindTextValue(ArgsUsage, delegate (string s) { this.Menu.ArgsUsageMessage = s == string.Empty ? null : s; });
+            BindTextValue(ArgsUsage, delegate (string s) { Menu.ArgsUsageMessage = s == string.Empty ? null : s; });
             BindTextValue(OpenCommand, delegate (string s)
             {
-                if (s == string.Empty) this.Menu.OpenCommand = null;
+                if (s == string.Empty)
+                {
+                    Menu.OpenCommand = null;
+                }
                 else
                 {
                     if (s.Contains(","))
                     {
                         List<string> temp = new List<string>();
-                        foreach (string a in s.Split(',')) temp.Add(a);
-                        this.Menu.OpenCommand = temp;
+                        foreach (string a in s.Split(','))
+                        {
+                            temp.Add(a);
+                        }
+
+                        Menu.OpenCommand = temp;
                     }
-                    else this.Menu.OpenCommand = s;
+                    else
+                    {
+                        Menu.OpenCommand = s;
+                    }
                 }
             });
 
             // TODO: 物品
             BindTextValue(ItemId, delegate (string s)
             {
-                if (this.Menu.Items.ContainsKey(s) && s != itemSelectedId)
+                if (Menu.Items.ContainsKey(s) && s != itemSelectedId)
                 {
-                    MemoryItem item = this.Menu.Items[ItemSelectedId];
-                    this.Menu.Items.Remove(ItemSelectedId);
-                    this.Menu.Items.Add(s, item);
-                    this.RefreshItemsList();
+                    MemoryItem item = Menu.Items[ItemSelectedId];
+                    Menu.Items.Remove(ItemSelectedId);
+                    Menu.Items.Add(s, item);
+                    RefreshItemsList();
                 }
             });
-            BindTextValue(ItemMaterial, delegate (string s) { if(Materials.materials.ContainsKey(s)) this.ItemSelected.Material = s; });
-            BindTextValue(ItemDisplayName, delegate (string s) { this.ItemSelected.DisplayName = s; });
-            BindTextValue(ItemSlots, delegate (string s) { this.ItemSelected.SlotString = s; });
-            BindTextValue(ItemLore, delegate (string s) { this.ItemSelected.LoreString = s; });
+            BindSliderValue(ItemAmount, delegate (int i) { TextItemAmount.Text = "物品数量: " + i; ItemSelected.Amount = i; });
+            BindCheckValue(ItemIsUseDynamicAmount, delegate (bool b)
+            {
+                ItemDynamicAmount.IsEnabled = b;
+                ItemAmount.IsEnabled = !b;
+                TextItemAmount.Text = "物品数量: " + (b ? "(*)" : ((int)ItemAmount.Value).ToString());
+            });
+            BindTextValue(ItemDynamicAmount, delegate (string s)
+            {
+                ItemSelected.DynamicAmount = s;
+            });
+            BindTextValue(ItemMaterial, delegate (string s) { if (Materials.materials.ContainsKey(s)) { ItemSelected.Material = s; } });
+            BindTextValue(ItemDisplayName, delegate (string s) { ItemSelected.DisplayName = s; });
+            BindTextValue(ItemSlots, delegate (string s) { ItemSelected.SlotString = s; });
+            BindTextValue(ItemLore, delegate (string s) { ItemSelected.LoreString = s; });
             #endregion
 
-            Inventory inv = new InventoryChest(this.Menu.InventorySize.GetValueOrDefault(9) / 9);
-            inv.Update(this.Menu);
-            this.GridPreview.Children.Add(inv);
+            Inventory inv = new InventoryChest(Menu.InventorySize.GetValueOrDefault(9) / 9);
+            inv.Update(Menu);
+            GridPreview.Children.Add(inv);
         }
 
         private void OpenMaterialWindow(object sender, RoutedEventArgs e)
         {
-            this.materialWindow.Show();
+            materialWindow.Show();
         }
         private void LoadMenu()
         {
-            this.MenuTitle.Text = Menu.Title;
-            foreach (ComboBoxItem i in this.MenuSize.Items)
+            MenuTitle.Text = Menu.Title;
+            foreach (ComboBoxItem i in MenuSize.Items)
             {
                 if (int.TryParse(i.Tag.ToString(), out int a) && a == Menu.InventorySize.GetValueOrDefault(0))
                 {
-                    this.MenuSize.SelectedItem = i;
+                    MenuSize.SelectedItem = i;
                     break;
                 }
             }
-            foreach (ComboBoxItem i in this.MenuType.Items)
+            foreach (ComboBoxItem i in MenuType.Items)
             {
                 if (i.Tag.ToString() == Menu.InventoryType)
                 {
-                    this.MenuType.SelectedItem = i;
+                    MenuType.SelectedItem = i;
                     break;
                 }
             }
-            this.UpdateInterval.Value = this.Menu.UpdateInterval.GetValueOrDefault(0);
-            this.IsRegisterCommand.IsChecked = this.Menu.IsRegisterOpenCommand;
-            var command = this.Menu.OpenCommand;
+            UpdateInterval.Value = Menu.UpdateInterval.GetValueOrDefault(0);
+            IsRegisterCommand.IsChecked = Menu.IsRegisterOpenCommand;
+            var command = Menu.OpenCommand;
             if (command is List<string>)
             {
                 List<string> cmds = (List<string>)command;
                 for (int i = 0; i < cmds.Count; i++)
                 {
-                    this.OpenCommand.Text += cmds[i] + (i < cmds.Count - 1 ? "," : "");
+                    OpenCommand.Text += cmds[i] + (i < cmds.Count - 1 ? "," : "");
                 }
             }
-            else if (command is string) this.OpenCommand.Text = (string)command;
-            if (this.Menu.CommandArgs != null) {
-                for (int i = 0; i < this.Menu.CommandArgs.Count; i++)
-                {
-                    this.Args.Text += this.Menu.CommandArgs[i] + (i < this.Menu.CommandArgs.Count - 1 ? "," : "");
-                } 
+            else if (command is string)
+            {
+                OpenCommand.Text = (string)command;
             }
-            this.ArgsUsage.Text = this.Menu.ArgsUsageMessage;
 
-            this.RefreshItemsList();
+            if (Menu.CommandArgs != null)
+            {
+                for (int i = 0; i < Menu.CommandArgs.Count; i++)
+                {
+                    Args.Text += Menu.CommandArgs[i] + (i < Menu.CommandArgs.Count - 1 ? "," : "");
+                }
+            }
+            ArgsUsage.Text = Menu.ArgsUsageMessage;
+
+            RefreshItemsList();
         }
 
         public void RefreshItemsList()
         {
-            this.ItemsList.Children.Clear();
-            foreach (string id in this.Menu.Items.Keys)
+            ItemsList.Children.Clear();
+            foreach (string id in Menu.Items.Keys)
             {
-                MemoryItem item = this.Menu.Items[id];
-                this.ItemsList.Children.Add(new SimpleItem(this) { Id = id, Text = item.DisplayName, Material = item.Material });
+                MemoryItem item = Menu.Items[id];
+                ItemsList.Children.Add(new SimpleItem(this) { Id = id, Text = item.DisplayName, Material = item.Material });
             }
+
         }
-        
+
         private void LoadItem()
         {
-            if (!this.Menu.Items.ContainsKey(ItemSelectedId)) return;
-            MemoryItem item = this.Menu.Items[ItemSelectedId];
-            this.ItemId.Text = ItemSelectedId;
-            this.ItemMaterial.Text = item.Material;
-            this.ItemDisplayName.Text = item.DisplayName;
-            this.ItemLore.Text = item.LoreString;
-            this.ItemSlots.Text = item.SlotString;
-            this.ItemPriority.Text = item.Priority.ToString();
+            if (!Menu.Items.ContainsKey(ItemSelectedId))
+            {
+                return;
+            }
 
-            this.ItemHideAttributes.IsChecked = item.HideAttributes;
-            this.ItemHideEffects.IsChecked = item.HideEffects;
-            this.ItemHideEnchantments.IsChecked = item.HideEnchantments;
-            this.ItemHideUnbreakable.IsChecked = item.HideUnbreakable;
-            this.ItemUnbreakable.IsChecked = item.Unbreakable;
+            MemoryItem item = Menu.Items[ItemSelectedId];
+            ItemId.Text = ItemSelectedId;
+            ItemMaterial.Text = item.Material;
+            ItemDisplayName.Text = item.DisplayName;
+            ItemLore.Text = item.LoreString;
+            ItemSlots.Text = item.SlotString;
+            ItemPriority.Text = item.Priority.ToString();
+
+            ItemHideAttributes.IsChecked = item.HideAttributes;
+            ItemHideEffects.IsChecked = item.HideEffects;
+            ItemHideEnchantments.IsChecked = item.HideEnchantments;
+            ItemHideUnbreakable.IsChecked = item.HideUnbreakable;
+            ItemUnbreakable.IsChecked = item.Unbreakable;
         }
 
         #region 控件相关杂项
-        private void IsRegisterCommand_Checked(object sender, RoutedEventArgs e)
-        {
-            OpenCommand.IsEnabled = Args.IsEnabled = true;
-        }
-        private void IsRegisterCommand_UnChecked(object sender, RoutedEventArgs e)
-        {
-            OpenCommand.IsEnabled = Args.IsEnabled = false;
-        }
         private void UpdateInterval_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
             int value = (int)e.NewValue;
@@ -501,20 +590,24 @@ namespace EasyDeluxeMenus
         }
         private void ItemMaterial_TextChanged(object sender, TextChangedEventArgs e)
         {
-            this.ItemMaterialImage.Source = Materials.GetMaterial(this.ItemMaterial.Text).Image;
+            ItemMaterialImage.Source = Materials.GetMaterial(ItemMaterial.Text).Image;
         }
         #endregion
 
         private void Items_Create(object sender, RoutedEventArgs e)
         {
-            this.Menu.Items.Add(GenNewItemName(), new MemoryItem() { Material = "STONE", DisplayName = "新建物品" });
-            this.RefreshItemsList();
-            this.UpdateSourceCode();
+            Menu.Items.Add(GenNewItemName(), new MemoryItem() { Material = "STONE", DisplayName = "新建物品" });
+            RefreshItemsList();
+            UpdateSourceCode();
         }
         public string GenNewItemName()
         {
-            string name = this.Menu.Items.Count.ToString();
-            while (this.Menu.Items.ContainsKey(name)) name += "-1";
+            string name = Menu.Items.Count.ToString();
+            while (Menu.Items.ContainsKey(name))
+            {
+                name += "-1";
+            }
+
             return name;
         }
 
@@ -522,6 +615,11 @@ namespace EasyDeluxeMenus
         {
             Clipboard.SetText(TextBoxMenuSource.Text);
             MessageBox.Show("已复制源代码");
+        }
+
+        private void ShowGithub(object sender, RoutedEventArgs e)
+        {
+            Process.Start("explorer.exe", "https://github.com/MrXiaoM/EasyDeluxeMenus");
         }
     }
 }

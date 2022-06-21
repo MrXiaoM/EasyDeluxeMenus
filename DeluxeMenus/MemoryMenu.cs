@@ -57,9 +57,21 @@ namespace EasyDeluxeMenus.DeluxeMenus
         {
             public int Compare([AllowNull] MemoryItem x, [AllowNull] MemoryItem y)
             {
-                if (x == null && x == null) return 0;
-                if (x == null) return -1;
-                if (y == null) return 1;
+                if (x == null && x == null)
+                {
+                    return 0;
+                }
+
+                if (x == null)
+                {
+                    return -1;
+                }
+
+                if (y == null)
+                {
+                    return 1;
+                }
+
                 int p0 = x.Priority.GetValueOrDefault(0);
                 int p1 = y.Priority.GetValueOrDefault(0);
                 return p0 == p1 ? 0 : (p0 < p1 ? 1 : -1);
@@ -170,7 +182,7 @@ namespace EasyDeluxeMenus.DeluxeMenus
         public RequirementsContainer ShiftRightClickRequirement;
         [YamlMember(Alias = "middle_click_requirement", DefaultValuesHandling = DefaultValuesHandling.OmitNull)]
         public RequirementsContainer MiddleClickRequirement;
-        
+
         [YamlIgnore]
         public List<string> Tooltips
         {
@@ -215,7 +227,7 @@ namespace EasyDeluxeMenus.DeluxeMenus
         {
             get
             {
-                return Materials.GetMaterial(this.Material);
+                return Materials.GetMaterial(Material);
             }
         }
 
@@ -239,7 +251,7 @@ namespace EasyDeluxeMenus.DeluxeMenus
                             string[] values = Slots[i].Split('-');
                             if (values.Length == 2 && int.TryParse(values[0], out int start) && int.TryParse(values[1], out int end))
                             {
-                                for(int j = start; j <= end; j++)
+                                for (int j = start; j <= end; j++)
                                 {
                                     set.Add(j);
                                 }
@@ -247,7 +259,11 @@ namespace EasyDeluxeMenus.DeluxeMenus
                         }
                     }
                 }
-                else if (Slot.HasValue) set.Add(Slot.Value);
+                else if (Slot.HasValue)
+                {
+                    set.Add(Slot.Value);
+                }
+
                 return set;
             }
         }
@@ -266,7 +282,11 @@ namespace EasyDeluxeMenus.DeluxeMenus
                     }
                     return result;
                 }
-                else if (Slot.HasValue) return Slot.Value.ToString();
+                else if (Slot.HasValue)
+                {
+                    return Slot.Value.ToString();
+                }
+
                 return "";
             }
             set
@@ -287,7 +307,11 @@ namespace EasyDeluxeMenus.DeluxeMenus
                 {
                     if (int.TryParse(s, out int a))
                     {
-                        if (Slots == null) Slots = new List<string>();
+                        if (Slots == null)
+                        {
+                            Slots = new List<string>();
+                        }
+
                         Slots.Add(a.ToString());
                     }
                     else if (s.Contains('-'))
@@ -295,7 +319,11 @@ namespace EasyDeluxeMenus.DeluxeMenus
                         string[] values = s.Split('-');
                         if (values.Length == 2 && int.TryParse(values[0], out int start) && int.TryParse(values[1], out int end))
                         {
-                            if (Slots == null) Slots = new List<string>();
+                            if (Slots == null)
+                            {
+                                Slots = new List<string>();
+                            }
+
                             Slots.Add(start + "-" + end);
                         }
                     }
@@ -308,7 +336,11 @@ namespace EasyDeluxeMenus.DeluxeMenus
         {
             get
             {
-                if (Lore == null || Lore.Count < 1) return "";
+                if (Lore == null || Lore.Count < 1)
+                {
+                    return "";
+                }
+
                 string result = "";
                 for (int i = 0; i < Lore.Count; i++)
                 {
@@ -320,9 +352,21 @@ namespace EasyDeluxeMenus.DeluxeMenus
             {
                 Lore = new List<string>();
                 value = value.Replace("\r", "");
-                if (value.Contains('\n')) foreach (string s in value.Split('\n')) Lore.Add(s);
-                else if (value.Length > 0) Lore.Add(value);
-                else Lore = null;
+                if (value.Contains('\n'))
+                {
+                    foreach (string s in value.Split('\n'))
+                    {
+                        Lore.Add(s);
+                    }
+                }
+                else if (value.Length > 0)
+                {
+                    Lore.Add(value);
+                }
+                else
+                {
+                    Lore = null;
+                }
             }
         }
 
@@ -346,9 +390,19 @@ namespace EasyDeluxeMenus.DeluxeMenus
             get
             {
                 string textAmount = string.Empty;
-                if (DynamicAmount != string.Empty) textAmount = "#";
-                else if (Amount < 0 || Amount > 1) textAmount = Amount.ToString();
-                else return null;
+                if (DynamicAmount != string.Empty)
+                {
+                    textAmount = "#";
+                }
+                else if (Amount < 0 || Amount > 1)
+                {
+                    textAmount = Amount.ToString();
+                }
+                else
+                {
+                    return null;
+                }
+
                 return new TextBlock()
                 {
                     Margin = new Thickness(0),

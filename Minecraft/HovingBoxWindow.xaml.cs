@@ -15,31 +15,31 @@ namespace EasyDeluxeMenus.Minecraft
         public HovingBoxWindow()
         {
             InitializeComponent();
-            this.MainText.FontFamily = App.UniFont;
-            this.Opacity = 0;
-            this.SizeToContent = SizeToContent.WidthAndHeight;
+            MainText.FontFamily = App.UniFont;
+            Opacity = 0;
+            SizeToContent = SizeToContent.WidthAndHeight;
             thread = new Thread(new ThreadStart(() =>
             {
                 while (running)
                 {
-                    this.Dispatcher.Invoke(Tick);
+                    Dispatcher.Invoke(Tick);
                     Thread.Sleep(10);
                 }
             }));
             thread.Start();
-            this.Show();
+            Show();
         }
 
         private void Tick()
         {
-            if (this.Opacity > 0)
+            if (Opacity > 0)
             {
                 SetTopMost(this);
                 POINT point = MousePos;
                 Dpi dpi = GetDpiByWin32();
                 Thickness margin = MainText.Margin;
-                this.Left = (point.X + 36) / (dpi.DpiX / 96);
-                this.Top = point.Y / (dpi.DpiY / 96);
+                Left = (point.X + 36) / (dpi.DpiX / 96);
+                Top = point.Y / (dpi.DpiY / 96);
             }
         }
 
@@ -64,7 +64,7 @@ namespace EasyDeluxeMenus.Minecraft
             else
             {
                 FormatCode.GenTextBlock(MainText, texts);
-                this.Opacity = 1;
+                Opacity = 1;
             }
         }
 

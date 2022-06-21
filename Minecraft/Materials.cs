@@ -23,9 +23,9 @@ namespace EasyDeluxeMenus.Minecraft
         public string TranslateName { get; private set; }
         internal Material(string name, string translateName, ImageSource image)
         {
-            this.Name = name;
-            this.TranslateName = translateName;
-            this.Image = image;
+            Name = name;
+            TranslateName = translateName;
+            Image = image;
         }
     }
     /// <summary>

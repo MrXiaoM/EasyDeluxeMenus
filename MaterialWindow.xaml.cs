@@ -17,7 +17,7 @@ namespace EasyDeluxeMenus
         {
             this.x = x;
             this.y = y;
-            this.Material = Materials.GetMaterial(material);
+            Material = Materials.GetMaterial(material);
             this.mw = mw;
             image = new Image()
             {
@@ -25,19 +25,19 @@ namespace EasyDeluxeMenus
                 Width = 32,
                 Height = 32
             };
-            this.Width = this.Height = 36;
-            this.HorizontalAlignment = HorizontalAlignment.Left;
-            this.VerticalAlignment = VerticalAlignment.Top;
-            this.Margin = new Thickness(x, y, 0, 0);
-            this.Background = new ImageBrush(bg);
-            this.Child = image;
-            this.MouseDown += delegate { mw.OnMaterialClick(this); };
-            this.MouseEnter += delegate { mw.OnMaterialMouseEnter(this); };
-            this.MouseLeave += delegate { mw.OnMaterialMouseLeave(this); };
+            Width = Height = 36;
+            HorizontalAlignment = HorizontalAlignment.Left;
+            VerticalAlignment = VerticalAlignment.Top;
+            Margin = new Thickness(x, y, 0, 0);
+            Background = new ImageBrush(bg);
+            Child = image;
+            MouseDown += delegate { mw.OnMaterialClick(this); };
+            MouseEnter += delegate { mw.OnMaterialMouseEnter(this); };
+            MouseLeave += delegate { mw.OnMaterialMouseLeave(this); };
         }
         public void SetLocation(int x, int y)
         {
-            this.Margin = new Thickness(x, y, 0, 0);
+            Margin = new Thickness(x, y, 0, 0);
         }
         public void ResetLocation()
         {
@@ -70,7 +70,7 @@ namespace EasyDeluxeMenus
         }
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
-            ImageSource bg = (ImageSource)new ImageSourceConverter().ConvertFrom(Properties.Resources.slot);
+            ImageSource bg = App.ImageSlot;
             int x = 0;
             int y = 0;
             MaterialBox.Children.Clear();
@@ -88,13 +88,13 @@ namespace EasyDeluxeMenus
         }
         private void Button_Click(object sender, RoutedEventArgs e)
         {
-            this.Hide();
+            Hide();
         }
         private void Image_MouseDown(object sender, MouseButtonEventArgs e)
         {
             if (e.LeftButton == MouseButtonState.Pressed)
             {
-                this.DragMove();
+                DragMove();
             }
         }
         private void SearchBox_TextChanged(object sender, TextChangedEventArgs e)
@@ -104,7 +104,11 @@ namespace EasyDeluxeMenus
             int y = 0;
             foreach (UIElement ui in MaterialBox.Children)
             {
-                if (!(ui is MaterialItem)) continue;
+                if (!(ui is MaterialItem))
+                {
+                    continue;
+                }
+
                 MaterialItem item = (MaterialItem)ui;
                 if (content == string.Empty)
                 {

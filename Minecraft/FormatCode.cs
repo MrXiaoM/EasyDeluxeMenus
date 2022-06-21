@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Documents;
@@ -16,7 +15,11 @@ namespace EasyDeluxeMenus.Minecraft
     {
         public static Color Hex(string s)
         {
-            if (!s.StartsWith("#")) s = "#" + s;
+            if (!s.StartsWith("#"))
+            {
+                s = "#" + s;
+            }
+
             return (Color)ColorConverter.ConvertFromString(s);
         }
 
@@ -75,7 +78,11 @@ namespace EasyDeluxeMenus.Minecraft
                     color = Hex("FFFFFF");
                     break;
             }
-            if (color == null) return null;
+            if (color == null)
+            {
+                return null;
+            }
+
             return new SolidColorBrush(color);
         }
 
@@ -100,7 +107,11 @@ namespace EasyDeluxeMenus.Minecraft
             tb.Inlines.Clear();
             for (int i = 0; i < texts.Count; i++)
             {
-                if (i > 0) tb.Inlines.Add(new LineBreak());
+                if (i > 0)
+                {
+                    tb.Inlines.Add(new LineBreak());
+                }
+
                 string text = texts[i];
                 int size = text.Length;
                 Run cache = new Run();
@@ -108,31 +119,51 @@ namespace EasyDeluxeMenus.Minecraft
                 {
                     if (text[index] == '§' || text[index] == '&')
                     {
-                        if (index + 1 >= size) break;
+                        if (index + 1 >= size)
+                        {
+                            break;
+                        }
+
                         char c = char.ToLower(text[index + 1]);
                         // 加粗
                         if (c == 'l')
                         {
-                            if (cache.Text != string.Empty) tb.Inlines.Add(cache);
+                            if (cache.Text != string.Empty)
+                            {
+                                tb.Inlines.Add(cache);
+                            }
+
                             cache = Inherit(cache, null, FontWeights.Bold);
                         }
                         // 斜体
                         else if (c == 'o')
                         {
-                            if (cache.Text != string.Empty) tb.Inlines.Add(cache);
+                            if (cache.Text != string.Empty)
+                            {
+                                tb.Inlines.Add(cache);
+                            }
+
                             cache = Inherit(cache, FontStyles.Italic);
                         }
                         // 下划线、删除线
                         else if (c == 'n' || c == 'm')
                         {
-                            if (cache.Text != string.Empty) tb.Inlines.Add(cache);
+                            if (cache.Text != string.Empty)
+                            {
+                                tb.Inlines.Add(cache);
+                            }
+
                             TextDecorationCollection deco = c == 'n' ? TextDecorations.Underline : TextDecorations.Strikethrough;
                             cache = Inherit(cache, null, null, deco);
                         }
                         // TODO: 魔法文字
                         else if (c == 'k')
                         {
-                            if (cache.Text != string.Empty) tb.Inlines.Add(cache);
+                            if (cache.Text != string.Empty)
+                            {
+                                tb.Inlines.Add(cache);
+                            }
+
                             cache = Inherit(cache);
                             cache.Tag = "magic";
                             // 临时解决方案
@@ -144,15 +175,25 @@ namespace EasyDeluxeMenus.Minecraft
                             Brush color = FromMinecraft(c);
                             if (color != null)
                             {
-                                if (cache.Text != string.Empty) tb.Inlines.Add(cache);
+                                if (cache.Text != string.Empty)
+                                {
+                                    tb.Inlines.Add(cache);
+                                }
+
                                 cache = new Run() { Foreground = color };
                             }
                         }
                         index++;
                     }
-                    else if (text[index] != '\n') cache.Text += text[index];
+                    else if (text[index] != '\n')
+                    {
+                        cache.Text += text[index];
+                    }
                 }
-                if (cache.Text != string.Empty) tb.Inlines.Add(cache);
+                if (cache.Text != string.Empty)
+                {
+                    tb.Inlines.Add(cache);
+                }
             }
         }
 
@@ -166,7 +207,11 @@ namespace EasyDeluxeMenus.Minecraft
                 TextDecorations = old.TextDecorations,
                 Tag = old.Tag
             };
-            if (newDeco != null) cache.TextDecorations.Add(newDeco);
+            if (newDeco != null)
+            {
+                cache.TextDecorations.Add(newDeco);
+            }
+
             return cache;
         }
     }
