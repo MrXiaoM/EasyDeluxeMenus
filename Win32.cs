@@ -13,6 +13,10 @@ namespace EasyDeluxeMenus
         public const int HWND_NOTOPMOST = -2;
         private const int LOGPIXELSX = 88;
         private const int LOGPIXELSY = 90;
+
+        public const int WS_EX_TRANSPARENT = 0x00000020;
+        public const int GWL_EXSTYLE = -20;
+
         [DllImport("gdi32.dll")]
         private static extern int GetDeviceCaps(IntPtr hdc, int index);
         [DllImport("user32.dll")]
@@ -29,16 +33,27 @@ namespace EasyDeluxeMenus
         [DllImport("user32.dll", CharSet = CharSet.Auto)]
         public static extern bool GetCursorPos(out POINT pt);
 
+        [DllImport("user32.dll")]
+        public static extern int GetWindowLong(IntPtr hwnd, int index);
+
+        [DllImport("user32.dll")]
+        public static extern int SetWindowLong(IntPtr hwnd, int index, int newStyle);
+
         public static void SetTopMost(Window window)
         {
-
             IntPtr hwnd = new WindowInteropHelper(window).Handle;
-            SetTopMost(hwnd);
-        }
-        public static void SetTopMost(IntPtr hWnd)
-        {
             WindowRect rect = new WindowRect();
-            GetWindowRect(hWnd, out rect);
+            GetWindowRect(hwnd, out rect);
+            SetTopMost(hwnd, rect);
+        }
+        public static void SetTopMost(Window window, WindowRect rect)
+        {
+            IntPtr hwnd = new WindowInteropHelper(window).Handle;
+            SetTopMost(hwnd, rect);
+        }
+        
+        public static void SetTopMost(IntPtr hWnd, WindowRect rect)
+        {
             SetWindowPos(hWnd, (IntPtr)HWND_TOPMOST, rect.Left, rect.Top, rect.Right - rect.Left, rect.Bottom - rect.Top, 0);
         }
         public static Dpi GetDpiByWin32()

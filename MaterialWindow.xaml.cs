@@ -51,10 +51,12 @@ namespace EasyDeluxeMenus
     {
         public delegate void MaterialClickEventHandler(MaterialItem item);
         public event MaterialClickEventHandler MaterialClickEvent;
-        HovingBoxWindow tips = new HovingBoxWindow();
+        private readonly HovingBoxWindow tips = new HovingBoxWindow();
         public MaterialWindow()
         {
             InitializeComponent();
+            tips.SetPixelFont();
+            GridTopmost.Children.Add(tips);
         }
         internal void OnMaterialMouseEnter(MaterialItem item)
         {
@@ -62,7 +64,7 @@ namespace EasyDeluxeMenus
         }
         internal void OnMaterialMouseLeave(MaterialItem item)
         {
-            tips.Opacity = 0;
+            tips.UpdateTips("");
         }
         internal void OnMaterialClick(MaterialItem item)
         {

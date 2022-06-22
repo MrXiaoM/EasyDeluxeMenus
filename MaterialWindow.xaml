@@ -3,7 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:EasyDeluxeMenus"
+        xmlns:local="clr-namespace:EasyDeluxeMenus" xmlns:minecraft="clr-namespace:EasyDeluxeMenus.Minecraft"
         mc:Ignorable="d"
         Title="选择物品图标" SizeToContent="WidthAndHeight"
         Background="Transparent" AllowsTransparency="True" 
@@ -12,7 +12,7 @@
         ResizeMode="CanMinimize" 
         Loaded="Window_Loaded" 
         Closing="Window_Closing">
-    <Grid Width="372" Height="264">
+    <Grid Width="372" Height="264" x:Name="GridTopmost">
         <Image Source="/Resources/material_bg.png" Stretch="None" MouseDown="Image_MouseDown"/>
         <Button Margin="342,10,12,236" Content="×" Click="Button_Click" ></Button>
         <Grid Background="#fff" Margin="13,10,33,236">

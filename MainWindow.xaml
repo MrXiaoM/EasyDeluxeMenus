@@ -3,7 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:EasyDeluxeMenus"
+        xmlns:local="clr-namespace:EasyDeluxeMenus" xmlns:minecraft="clr-namespace:EasyDeluxeMenus.Minecraft"
         mc:Ignorable="d"
         Title="EasyDeluxeMenus 树形菜单编辑器" Height="700" Width="1000" Loaded="Window_Loaded" Closing="Window_Closing" WindowStartupLocation="CenterScreen">
     <Window.Resources>
@@ -19,7 +19,7 @@
             <Setter Property="Control.Foreground" Value="{StaticResource Foreground}"/>
         </Style>
     </Window.Resources>
-    <Grid Background="{StaticResource Background}">
+    <Grid Background="{StaticResource Background}" x:Name="GridTopmost">
         <Menu Background="{StaticResource Background}" Foreground="{StaticResource Background}" VerticalAlignment="Top" Height="18">
             <MenuItem Header="文件" Foreground="{StaticResource Foreground}">
                 <MenuItem Header="新建" Click="NewFile" Style="{StaticResource SubMenu}"/>
@@ -47,8 +47,8 @@
                 <ColumnDefinition Width="5"/>
                 <ColumnDefinition Width="3*" MinWidth="352"/>
             </Grid.ColumnDefinitions>
-            <Border BorderBrush="#666666" BorderThickness="1" Padding="5">
-                <Grid x:Name="GridLeft" Background="#101010">
+            <Border BorderBrush="{StaticResource TabItem.Selected.LightBorder}" Background="{StaticResource BackgroundInner}" BorderThickness="1" Padding="3">
+                <Grid x:Name="GridLeft">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="*"/>
@@ -58,8 +58,8 @@
                             <ColumnDefinition Width="2*"/>
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
-                        <TextBlock Text="物品列表" Foreground="#EEEEEE" VerticalAlignment="Center" Grid.Column="0"/>
-                        <Button Content="新建" Grid.Column="1" Click="Items_Create" />
+                        <TextBlock Text="物品列表" Foreground="{StaticResource Foreground}" VerticalAlignment="Center" Grid.Column="0"/>
+                        <Button Style="{StaticResource ButtonDark}" Content="新建" Grid.Column="1" Click="Items_Create" />
                     </Grid>
                     <ScrollViewer Grid.Row="1" Margin="4">
                         <StackPanel x:Name="ItemsList">
@@ -68,15 +68,15 @@
                     </ScrollViewer>
                 </Grid>
             </Border>
-            <GridSplitter Grid.Column="1" Width="5" HorizontalAlignment="Stretch" Background="#232323"/>
+            <GridSplitter Grid.Column="1" Width="5" HorizontalAlignment="Stretch" Background="{StaticResource Background}"/>
             <Grid x:Name="GridRight" Grid.Column="2">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="*"/>
                     <RowDefinition Height="5"/>
                     <RowDefinition Height="*"/>
                 </Grid.RowDefinitions>
-                <Grid Grid.Row="0" DockPanel.Dock="Top" Margin="0,5,0,5">
-                    <TabControl Style="{DynamicResource TabControlDark}" x:Name="TabUpper" Foreground="#EEEEEE">
+                <Grid Grid.Row="0" DockPanel.Dock="Top">
+                    <TabControl Style="{StaticResource TabControlDark}" x:Name="TabUpper" Foreground="{StaticResource Foreground}">
                         <TabItem Header="预览/设计">
                             <Grid>
                                 <TextBlock x:Name="TextPreviewTipsLeft" VerticalAlignment="Top" HorizontalAlignment="Left" Padding="20,20,0,0"/>
@@ -97,9 +97,9 @@
                         </TabItem>
                     </TabControl>
                 </Grid>
-                <GridSplitter Grid.Row="1" Height="5" HorizontalAlignment="Stretch" Background="#232323"/>
-                <Grid Grid.Row="2" Margin="0,5,0,0">
-                    <TabControl Style="{DynamicResource TabControlDark}">
+                <GridSplitter Grid.Row="1" Height="5" HorizontalAlignment="Stretch" Background="{StaticResource Background}"/>
+                <Grid Grid.Row="2">
+                    <TabControl Style="{StaticResource TabControlDark}">
                         <TabItem Header="菜单设置">
                             <ScrollViewer HorizontalScrollBarVisibility="Hidden">
                                 <Grid Margin="5,0,5,0">
@@ -167,7 +167,7 @@
                                 </Grid>
                             </ScrollViewer>
                         </TabItem>
-                        <TabItem Header="选中的物品设置" x:Name="TabSelectedItem">
+                        <TabItem Header="选中的物品设置" x:Name="TabSelectedItem" IsEnabled="False">
                             <ScrollViewer>
                                 <Grid Margin="5,0,5,0">
                                     <Grid.ColumnDefinitions>

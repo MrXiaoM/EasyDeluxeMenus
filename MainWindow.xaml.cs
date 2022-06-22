@@ -100,28 +100,41 @@ namespace EasyDeluxeMenus
     public class SimpleItem : Grid
     {
         public static readonly SolidColorBrush COLOR_DEFAULT = new SolidColorBrush(Color.FromArgb(128, 0, 0, 0));
-        public static readonly SolidColorBrush COLOR_SELECTED = new SolidColorBrush(Color.FromArgb(90, 0, 0, 0));
+        public static readonly SolidColorBrush COLOR_MOUSEOVER = new SolidColorBrush(Color.FromArgb(90, 0, 0, 0));
+        public static readonly SolidColorBrush COLOR_SELECTED = new SolidColorBrush(Color.FromArgb(180, 86, 157, 229));
         Image image = new Image()
         {
-            Margin = new Thickness(2),
+            Margin = new Thickness(6),
             VerticalAlignment = VerticalAlignment.Center,
             HorizontalAlignment = HorizontalAlignment.Left,
-            Width = 16,
-            Height = 16,
+            Width = 20,
+            Height = 20,
         };
         TextBlock text = new TextBlock()
         {
-            Margin = new Thickness(20, 2, 2, 2),
+            Margin = new Thickness(32, 2, 2, 2),
             VerticalAlignment = VerticalAlignment.Center,
             HorizontalAlignment = HorizontalAlignment.Left,
             Foreground = new SolidColorBrush(Colors.White)
         };
+        Border border;
         private string material;
-        public SimpleItem(MainWindow mainWindow)
+
+        public SimpleItem(MainWindow mainWindow, string Id, string Text, string Material)
         {
             this.mainWindow = mainWindow;
-            Background = COLOR_DEFAULT;
-            Height = 24;
+            this.Id = Id;
+            this.Text = Text;
+            this.Material = Material;
+            Margin = new Thickness(0, 2, 4, 2);
+            Background = Id == mainWindow.ItemSelectedId ? COLOR_MOUSEOVER : COLOR_DEFAULT;
+            Height = 36;
+            
+            Children.Add(border = new Border()
+            {
+                BorderBrush = COLOR_SELECTED,
+                BorderThickness = new Thickness(Id != mainWindow.ItemSelectedId ? 0 : 1)
+            });
             Children.Add(image);
             Children.Add(text);
             MouseDown += delegate
@@ -129,9 +142,24 @@ namespace EasyDeluxeMenus
                 mainWindow.ItemSelectedId = Id;
                 foreach (SimpleItem i in mainWindow.ItemsList.Children)
                 {
-                    i.Background = COLOR_DEFAULT;
+                    i.border.BorderThickness = new Thickness(i.Id == this.Id ? 1 : 0);
+                    i.Background = i.Id == this.Id ? COLOR_MOUSEOVER : COLOR_DEFAULT;
                 }
-                Background = COLOR_SELECTED;
+            };
+            MouseEnter += delegate
+            {
+                Background = COLOR_MOUSEOVER;
+                MemoryItem item = mainWindow.Menu.Items[Id];
+                mainWindow.TipsList = item.Tooltips;
+            };
+            MouseLeave += delegate
+            {
+                if (mainWindow.ItemSelectedId != Id)
+                {
+                    Background = COLOR_DEFAULT;
+                }
+
+                mainWindow.Tips = "";
             };
         }
 
@@ -161,12 +189,11 @@ namespace EasyDeluxeMenus
             }
         }
         public string Id;
-        private MainWindow mainWindow;
+        private readonly MainWindow mainWindow;
 
         public string Text
         {
-            get => text.Text;
-            set => text.Text = value;
+            set => FormatCode.GenTextBlock(text, value);
         }
         public string Material
         {
@@ -190,6 +217,7 @@ namespace EasyDeluxeMenus
             if (Menu != null)
             {
                 TextBoxMenuSource.Text = Menu.ToString();
+                RefreshItemsList();
                 // TODO 不推荐的强制转换
                 ((Inventory)GridPreview.Children[0]).Update(Menu);
             }
@@ -320,9 +348,8 @@ namespace EasyDeluxeMenus
         }
         public string CurrentMenuFile { get; private set; } = string.Empty;
         public MemoryMenu Menu { get; private set; } = MemoryMenu.Default;
-
-        private readonly MaterialWindow materialWindow = new MaterialWindow();
         private readonly HovingBoxWindow tips = new HovingBoxWindow();
+        private readonly MaterialWindow materialWindow = new MaterialWindow();
         public string Tips
         {
             set
@@ -383,6 +410,8 @@ namespace EasyDeluxeMenus
         public MainWindow()
         {
             InitializeComponent();
+            tips.SetPixelFont();
+            GridTopmost.Children.Add(tips);
             instance = this;
         }
 
@@ -468,7 +497,6 @@ namespace EasyDeluxeMenus
                     MemoryItem item = Menu.Items[ItemSelectedId];
                     Menu.Items.Remove(ItemSelectedId);
                     Menu.Items.Add(s, item);
-                    RefreshItemsList();
                 }
             });
             BindSliderValue(ItemAmount, delegate (int i) { TextItemAmount.Text = "物品数量: " + i; ItemSelected.Amount = i; });
@@ -541,7 +569,7 @@ namespace EasyDeluxeMenus
             }
             ArgsUsage.Text = Menu.ArgsUsageMessage;
 
-            RefreshItemsList();
+            UpdateSourceCode();
         }
 
         public void RefreshItemsList()
@@ -550,7 +578,7 @@ namespace EasyDeluxeMenus
             foreach (string id in Menu.Items.Keys)
             {
                 MemoryItem item = Menu.Items[id];
-                ItemsList.Children.Add(new SimpleItem(this) { Id = id, Text = item.DisplayName, Material = item.Material });
+                ItemsList.Children.Add(new SimpleItem(this, id, item.DisplayName + "\n&7"+ id, item.Material));
             }
 
         }
@@ -559,8 +587,11 @@ namespace EasyDeluxeMenus
         {
             if (!Menu.Items.ContainsKey(ItemSelectedId))
             {
+                TabSelectedItem.IsEnabled = false;
                 return;
             }
+
+            TabSelectedItem.IsEnabled = true;
 
             MemoryItem item = Menu.Items[ItemSelectedId];
             ItemId.Text = ItemSelectedId;
@@ -597,7 +628,6 @@ namespace EasyDeluxeMenus
         private void Items_Create(object sender, RoutedEventArgs e)
         {
             Menu.Items.Add(GenNewItemName(), new MemoryItem() { Material = "STONE", DisplayName = "新建物品" });
-            RefreshItemsList();
             UpdateSourceCode();
         }
         public string GenNewItemName()

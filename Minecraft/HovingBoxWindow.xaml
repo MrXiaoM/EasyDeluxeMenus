@@ -1,18 +1,13 @@
-﻿<Window x:Class="EasyDeluxeMenus.Minecraft.HovingBoxWindow"
+﻿<Grid x:Class="EasyDeluxeMenus.Minecraft.HovingBoxWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:EasyDeluxeMenus.Minecraft"
         mc:Ignorable="d"
-        Title="TipsWindow" 
-        AllowsTransparency="True" 
-        Background="Transparent" 
-        WindowStartupLocation="Manual" 
-        WindowStyle="None" 
-        ShowInTaskbar="False" 
-        Height="50" Width="100" Closing="Window_Closing">
-    <Grid>
+        Background="Transparent" IsHitTestVisible="False"
+        Margin="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+    <Grid x:Name="HoverBox" Visibility="Hidden" HorizontalAlignment="Left" VerticalAlignment="Top">
         <Rectangle Fill="#EE1E0F1E" Margin="0,2,0,2" HorizontalAlignment="Left" Width="2"></Rectangle>
         <Rectangle Fill="#EE1E0F1E" Margin="2,0,2,0" VerticalAlignment="Top" Height="2"></Rectangle>
         <Rectangle Fill="#EE1E0F1E" Margin="0,2,0,2" HorizontalAlignment="Right" Width="2"></Rectangle>
@@ -38,7 +33,7 @@
             </Rectangle.Fill>
         </Rectangle>
         <Grid x:Name="MainGrid" Margin="8">
-            <TextBlock x:Name="MainText" Foreground="#FFFFFF" FontFamily="Unifont" FontSize="12" LineHeight="16"/>
+            <TextBlock x:Name="MainText" Foreground="#FFFFFF" FontSize="12" LineHeight="16"/>
         </Grid>
     </Grid>
-</Window>
+</Grid>
